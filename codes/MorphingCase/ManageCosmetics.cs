@@ -91,9 +91,13 @@ namespace Silly_Things.codes.MorphingCase
                 player.isPlayerControlled &&
                 !string.IsNullOrEmpty(player.playerUsername);
 
-            if (!valid && player != null)
-                Plugin.log.LogInfo($"[ManageCosmetics] Invalid player skipped: {player.playerUsername}");
 
+            if (!valid && player != null)
+                Plugin.log.LogInfo($"[ManageCosmetics] Invalid player skipped: {player.playerUsername}, isplayercontrol : {player.isPlayerControlled}");
+            else
+            {
+                Plugin.log.LogInfo($"[ManageCosmetics] Valid player: {player.playerUsername}, isplayercontrol : {player.isPlayerControlled}");
+            }
             return valid;
         }
     }

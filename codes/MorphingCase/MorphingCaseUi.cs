@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using Lethal_Battle;
+using LethalLib.Modules;
 using MoreCompany.Cosmetics;
 using System.Collections.Generic;
 using TMPro;
@@ -142,6 +143,9 @@ namespace Silly_Things.codes.MorphingCase
                 if (player == localPlayer)
                     continue;
 
+                Plugin.log.LogError($"{player.playerUsername}  ---------------");
+                Plugin.log.LogError($"{leftCount} {rightCount}  ---------------");
+
                 if (leftCount < 3)
                 {
                     CreatePlayerEntry(player, content);
@@ -183,6 +187,8 @@ namespace Silly_Things.codes.MorphingCase
                         resetButton.interactable = true;
                 });
             }
+            Plugin.log.LogError($"{source.playerUsername} {parentContent} Create Button  ---------------");
+
 
             RawImage avatar = clone.transform.Find("PlayerAvatar")?.GetComponent<RawImage>();
             if (avatar != null && !GameNetworkManager.Instance.disableSteam)
@@ -215,6 +221,7 @@ namespace Silly_Things.codes.MorphingCase
                 PlayerControllerB player = overflowPlayers[index];
                 Transform targetContent = i < 3 ? content : contentRight;
                 CreatePlayerEntry(player, targetContent);
+                Plugin.log.LogError($"{player.playerUsername} Create Player  ---------------");
             }
 
             if (buttonLeft != null)
