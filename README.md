@@ -19,3 +19,4 @@ You can post some suggestions or issues in the mod release page in the as a [git
 # Credits
 
 -   Thanks **Zigzag** for help on the UI !
+-   Thanks to AlemanGame for the item model : https://sketchfab.com/3d-models/suitcase-8686e3b8564349fdbbdf166042655036

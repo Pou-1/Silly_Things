@@ -11,10 +11,10 @@ namespace Silly_Things.codes.MorphingCase
         {
             base.ItemActivate(used, buttonDown);
 
-            if (playerHeldBy != StartOfRound.Instance.localPlayerController)
+            if (!playerHeldBy.IsOwner)
                 return;
 
-            if (!ui.CanOpenUI(buttonDown))
+            if (ui.IsOpen)
                 return;
 
             ui.OpenUI();

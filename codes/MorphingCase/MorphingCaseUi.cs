@@ -35,6 +35,7 @@ namespace Silly_Things.codes.MorphingCase
             Plugin.log.LogInfo("[MorphingCaseUi] OpenUI called");
 
             uiInstance = Object.Instantiate(Plugin.instance.UI_MorphingCase);
+
             if (uiInstance == null)
             {
                 Plugin.log.LogError("[MorphingCaseUi] UI instance null");

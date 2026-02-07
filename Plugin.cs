@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Lethal_Battle
 {
@@ -42,7 +43,7 @@ namespace Lethal_Battle
             {
                 string assetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "uicase");
                 AssetBundle bundle = AssetBundle.LoadFromFile(assetDir);
-                string path = "Assets/LethalModding/MorphingCase/UICaseTest/UICase.prefab";
+                string path = "Assets/LethalModding/MorphingCase/UI/UICase.prefab";
 
                 UI_MorphingCase = bundle.LoadAsset<GameObject>(path);
 
