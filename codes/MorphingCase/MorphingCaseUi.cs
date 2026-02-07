@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Windows;
 
 namespace Silly_Things.codes.MorphingCase
 {
@@ -18,10 +17,18 @@ namespace Silly_Things.codes.MorphingCase
 
         private Button closeButton;
         private Button resetButton;
+        private Button buttonLeft;
+        private Button buttonRight;
+
         private Transform content;
+        private Transform contentRight;
         private Transform playerTemplate;
 
         private ManageCosmetics cosmeticsManager;
+
+        private List<PlayerControllerB> overflowPlayers = new List<PlayerControllerB>();
+        private int currentPage = 0;
+        private const int playersPerPage = 6;
 
         public bool CanOpenUI(bool buttonDown)
         {
@@ -35,7 +42,6 @@ namespace Silly_Things.codes.MorphingCase
             Plugin.log.LogInfo("[MorphingCaseUi] OpenUI called");
 
             uiInstance = Object.Instantiate(Plugin.instance.UI_MorphingCase);
-
             if (uiInstance == null)
             {
                 Plugin.log.LogError("[MorphingCaseUi] UI instance null");
@@ -71,15 +77,17 @@ namespace Silly_Things.codes.MorphingCase
         {
             Plugin.log.LogInfo("[MorphingCaseUi] CacheUIRefs");
 
-            closeButton = uiInstance.transform.Find("Panel/Panel/ButtonClose").GetComponent<Button>();
-            resetButton = uiInstance.transform.Find("Panel/Panel/ButtonReset").GetComponent<Button>();
+            closeButton = uiInstance.transform.Find("Panel/Panel/ButtonClose")?.GetComponent<Button>();
+            resetButton = uiInstance.transform.Find("Panel/Panel/ButtonReset")?.GetComponent<Button>();
+            buttonLeft = uiInstance.transform.Find("Panel/ButtonLeft")?.GetComponent<Button>();
+            buttonRight = uiInstance.transform.Find("Panel/ButtonRight")?.GetComponent<Button>();
+
             content = uiInstance.transform.Find("Panel/Panel/PanelLeft/Viewport/Content");
+            contentRight = uiInstance.transform.Find("Panel/Panel/PanelRight/Viewport/Content");
             playerTemplate = content.Find("PlayerNames");
 
             if (closeButton != null)
                 closeButton.onClick.AddListener(ForceCloseUI);
-            else
-                Plugin.log.LogError("[MorphingCaseUi] Close button not found");
 
             if (resetButton != null)
             {
@@ -91,32 +99,40 @@ namespace Silly_Things.codes.MorphingCase
                 });
                 resetButton.interactable = false;
             }
-            else
-                Plugin.log.LogError("[MorphingCaseUi] Reset button not found");
+
+            if (buttonLeft != null)
+                buttonLeft.onClick.AddListener(() => ChangePage(-1));
+
+            if (buttonRight != null)
+                buttonRight.onClick.AddListener(() => ChangePage(1));
 
             if (playerTemplate != null)
                 playerTemplate.gameObject.SetActive(false);
-            else
-                Plugin.log.LogError("[MorphingCaseUi] Player template not found");
         }
 
         private void BuildPlayerList()
         {
             Plugin.log.LogInfo("[MorphingCaseUi] BuildPlayerList");
 
-            if (content == null || playerTemplate == null)
+            if (content == null || contentRight == null || playerTemplate == null)
             {
-                Plugin.log.LogError("[MorphingCaseUi] Content or template null");
+                Plugin.log.LogError("[MorphingCaseUi] Content panels or template null");
                 return;
             }
 
             foreach (Transform child in content)
-            {
-                if (child != playerTemplate)
-                    Object.Destroy(child.gameObject);
-            }
+                if (child != playerTemplate) Object.Destroy(child.gameObject);
+
+            foreach (Transform child in contentRight)
+                if (child != playerTemplate) Object.Destroy(child.gameObject);
+
+            overflowPlayers.Clear();
+            currentPage = 0;
 
             PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
+
+            int leftCount = 0;
+            int rightCount = 0;
 
             foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
             {
@@ -124,56 +140,89 @@ namespace Silly_Things.codes.MorphingCase
                     continue;
 
                 if (player == localPlayer)
-                {
-                    Plugin.log.LogInfo("[MorphingCaseUi] Skipping local player");
                     continue;
-                }
 
-                CreatePlayerEntry(player);
+                if (leftCount < 3)
+                {
+                    CreatePlayerEntry(player, content);
+                    leftCount++;
+                }
+                else if (rightCount < 3)
+                {
+                    CreatePlayerEntry(player, contentRight);
+                    rightCount++;
+                }
+                else
+                {
+                    overflowPlayers.Add(player);
+                }
             }
 
+            Plugin.log.LogInfo($"[MorphingCaseUi] Overflow players count: {overflowPlayers.Count}");
+            RefreshPage();
         }
 
-        private void CreatePlayerEntry(PlayerControllerB source)
+        private void CreatePlayerEntry(PlayerControllerB source, Transform parentContent)
         {
-            GameObject clone = Object.Instantiate(playerTemplate.gameObject, content);
+            GameObject clone = Object.Instantiate(playerTemplate.gameObject, parentContent);
             clone.SetActive(true);
 
-            Plugin.log.LogInfo($"[MorphingCaseUi] Clone PlayerNames for {source.playerUsername}");
-
             TMP_Text name = clone.transform.Find("ButtonPlayer/PlayerName")?.GetComponent<TMP_Text>();
-
             if (name != null)
                 name.text = source.playerUsername;
-            else
-                Plugin.log.LogError("[MorphingCaseUi] PlayerName TMP not found");
 
             Button btn = clone.transform.Find("ButtonPlayer")?.GetComponent<Button>();
-
-            if (btn == null)
+            if (btn != null)
             {
-                Plugin.log.LogError("[MorphingCaseUi] ButtonPlayer NOT FOUND");
-                return;
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(() =>
+                {
+                    Plugin.log.LogInfo($"[MorphingCaseUi] Clicked on {source.playerUsername}");
+                    cosmeticsManager.MorphToPlayer(source);
+                    if (resetButton != null)
+                        resetButton.interactable = true;
+                });
             }
 
-            btn.onClick.RemoveAllListeners();
-            btn.onClick.AddListener(() =>
-            {
-                Plugin.log.LogInfo($"[MorphingCaseUi] Clicked on {source.playerUsername}");
-                cosmeticsManager.MorphToPlayer(source);
-
-                if (resetButton != null)
-                    resetButton.interactable = true;
-            });
-
             RawImage avatar = clone.transform.Find("PlayerAvatar")?.GetComponent<RawImage>();
-
             if (avatar != null && !GameNetworkManager.Instance.disableSteam)
                 HUDManager.FillImageWithSteamProfile(avatar, source.playerSteamId);
-            else
-                Plugin.log.LogWarning("[MorphingCaseUi] PlayerAvatar not filled");
         }
 
+        private void ChangePage(int delta)
+        {
+            int maxPage = Mathf.CeilToInt((float)overflowPlayers.Count / playersPerPage) - 1;
+            currentPage = Mathf.Clamp(currentPage + delta, 0, Mathf.Max(0, maxPage));
+
+            Plugin.log.LogInfo($"[MorphingCaseUi] Changing to page {currentPage}");
+            RefreshPage();
+        }
+
+        private void RefreshPage()
+        {
+            foreach (Transform child in content)
+                if (child != playerTemplate) Object.Destroy(child.gameObject);
+
+            foreach (Transform child in contentRight)
+                if (child != playerTemplate) Object.Destroy(child.gameObject);
+
+            int startIndex = currentPage * playersPerPage;
+            for (int i = 0; i < playersPerPage; i++)
+            {
+                int index = startIndex + i;
+                if (index >= overflowPlayers.Count) break;
+
+                PlayerControllerB player = overflowPlayers[index];
+                Transform targetContent = i < 3 ? content : contentRight;
+                CreatePlayerEntry(player, targetContent);
+            }
+
+            if (buttonLeft != null)
+                buttonLeft.interactable = currentPage > 0;
+
+            if (buttonRight != null)
+                buttonRight.interactable = currentPage < Mathf.CeilToInt((float)overflowPlayers.Count / playersPerPage) - 1;
+        }
 
         private static void EnableCursor(bool state)
         {
