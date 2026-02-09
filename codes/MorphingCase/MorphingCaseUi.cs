@@ -11,18 +11,18 @@ namespace Silly_Things.codes.MorphingCase
         public bool IsOpen => isUIOpen;
 
         private bool isUIOpen;
-        private GameObject uiInstance;
+        private GameObject? uiInstance;
 
-        private Button closeButton;
-        private Button resetButton;
-        private Button buttonLeft;
-        private Button buttonRight;
+        private Button? closeButton;
+        private Button? resetButton;
+        private Button? buttonLeft;
+        private Button? buttonRight;
 
-        private Transform content;
-        private Transform contentRight;
-        private Transform playerTemplate;
+        private Transform? content;
+        private Transform? contentRight;
+        private Transform? playerTemplate;
 
-        private ManageCosmetics cosmeticsManager;
+        private ManageCosmetics? cosmeticsManager;
 
         private List<PlayerControllerB> overflowPlayers = new List<PlayerControllerB>();
         private int currentPage = 0;
@@ -30,16 +30,12 @@ namespace Silly_Things.codes.MorphingCase
 
         public bool CanOpenUI(bool buttonDown)
         {
-            bool canOpen = buttonDown && !isUIOpen && Plugin.Instance.UI_MorphingCase != null;
-            Plugin.Logger.LogInfo($"CanOpenUI: {canOpen}");
-            return canOpen;
+            return buttonDown && !isUIOpen && Plugin.Instance.UI_MorphingCase != null;
         }
 
         public void OpenUI()
         {
-            Plugin.Logger.LogInfo("OpenUI called");
-
-            Plugin.Instance.SoundOpenUI.Play();
+            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.Instance.SoundOpenUI);
 
             uiInstance = Object.Instantiate(Plugin.Instance.UI_MorphingCase);
             if (uiInstance == null)
@@ -48,20 +44,22 @@ namespace Silly_Things.codes.MorphingCase
                 return;
             }
 
-            cosmeticsManager = new ManageCosmetics();
+            cosmeticsManager = Plugin.Instance.CosmeticsManager;
 
             CacheUIRefs();
+
+            if (resetButton != null)
+                resetButton.interactable = Plugin.Instance.CosmeticsManager.HasStoredCosmetics;
+
             EnableCursor(true);
             BuildPlayerList();
 
             isUIOpen = true;
-            Plugin.Logger.LogInfo("UI opened");
         }
 
         public void ForceCloseUI()
         {
-            Plugin.Logger.LogInfo("CloseUI called");
-            Plugin.Instance.SoundCloseUI.Play();
+            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.Instance.SoundCloseUI);
 
             if (uiInstance != null)
                 Object.Destroy(uiInstance);
@@ -71,13 +69,10 @@ namespace Silly_Things.codes.MorphingCase
 
             EnableCursor(false);
 
-            Plugin.Logger.LogInfo("UI closed");
         }
 
         private void CacheUIRefs()
         {
-            Plugin.Logger.LogInfo("CacheUIRefs");
-
             closeButton = uiInstance.transform.Find("Panel/Panel/ButtonClose")?.GetComponent<Button>();
             resetButton = uiInstance.transform.Find("Panel/Panel/ButtonReset")?.GetComponent<Button>();
             buttonLeft = uiInstance.transform.Find("Panel/ButtonLeft")?.GetComponent<Button>();
@@ -94,7 +89,6 @@ namespace Silly_Things.codes.MorphingCase
             {
                 resetButton.onClick.AddListener(() =>
                 {
-                    Plugin.Logger.LogInfo("Reset button clicked");
                     cosmeticsManager.RestorePreviousCosmetics();
                     resetButton.interactable = false;
                 });
@@ -141,6 +135,7 @@ namespace Silly_Things.codes.MorphingCase
 
             RefreshPage();
         }
+
         private void CreatePlayerEntry(PlayerControllerB source, Transform parentContent)
         {
             GameObject clone = Object.Instantiate(playerTemplate.gameObject, parentContent);
@@ -162,11 +157,9 @@ namespace Silly_Things.codes.MorphingCase
                 });
             }
 
-            RawImage avatar = clone.transform.Find("PlayerAvatar")?.GetComponent<RawImage>();
+            RawImage avatar = clone.GetComponentInChildren<RawImage>(true);
 
-            bool isMultiplayer =
-                !GameNetworkManager.Instance.disableSteam &&
-                StartOfRound.Instance.connectedPlayersAmount > 1;
+            bool isMultiplayer = !GameNetworkManager.Instance.disableSteam;
 
             if (avatar != null)
             {
@@ -174,6 +167,10 @@ namespace Silly_Things.codes.MorphingCase
                     HUDManager.FillImageWithSteamProfile(avatar, source.playerSteamId);
                 else
                     avatar.gameObject.SetActive(false);
+            }
+            else
+            {
+                Plugin.Logger.LogError("avatar fail to clone");
             }
         }
 
@@ -183,7 +180,6 @@ namespace Silly_Things.codes.MorphingCase
             currentPage = Mathf.Clamp(currentPage + delta, 0, maxPage);
             RefreshPage();
         }
-
 
         private void RefreshPage()
         {
@@ -206,7 +202,6 @@ namespace Silly_Things.codes.MorphingCase
             }
 
             int maxPage = Mathf.Max(0, Mathf.CeilToInt((float)overflowPlayers.Count / playersPerPage) - 1);
-
             bool hasMultiplePages = maxPage > 0;
 
             if (buttonLeft != null)
@@ -220,7 +215,6 @@ namespace Silly_Things.codes.MorphingCase
                 buttonRight.gameObject.SetActive(hasMultiplePages);
                 buttonRight.interactable = hasMultiplePages && currentPage < maxPage;
             }
-
         }
 
         private static void EnableCursor(bool state)
@@ -228,8 +222,6 @@ namespace Silly_Things.codes.MorphingCase
             Cursor.visible = state;
             Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
             StartOfRound.Instance.localPlayerController.disableLookInput = state;
-
-            Plugin.Logger.LogInfo($"Cursor state: {state}");
         }
     }
 }

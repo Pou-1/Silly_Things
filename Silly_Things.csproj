@@ -19,6 +19,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
+    <Exec Command="netcode-patch -nv 1.5.2 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')"/>
+  </Target>
+
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>dependencies\0Harmony.dll</HintPath>

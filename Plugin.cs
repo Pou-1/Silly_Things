@@ -23,8 +23,10 @@ namespace Silly_Things
 
         public GameObject? UI_MorphingCase;
 
-        public AudioSource? SoundOpenUI;
-        public AudioSource? SoundCloseUI;
+        internal ManageCosmetics CosmeticsManager { get; private set; } = null!;
+
+        public AudioClip SoundOpenUI = null!;
+        public AudioClip SoundCloseUI = null!;
 
         public void Awake()
         {
@@ -32,6 +34,14 @@ namespace Silly_Things
             Logger = base.Logger;
 
             SillyThingsConfig = new Config(Config);
+            CosmeticsManager = new ManageCosmetics();
+
+            if (PlayerPrefs.HasKey("MorphingCase_PreviousCosmetics"))
+            {
+                CosmeticsManager.RestorePreviousCosmetics();
+                PlayerPrefs.DeleteKey("MorphingCase_PreviousCosmetics");
+                PlayerPrefs.DeleteKey("MorphingCase_PreviousSuit");
+            }
 
             LoadAssetBundle();
 
@@ -51,20 +61,24 @@ namespace Silly_Things
                 Logger.LogError("Failed to load asset bundle");
                 return;
             }
+
             LoadUIMorphingCase(bundle);
             LoadMorphingCase(bundle);
+            LoadAudioSourceMorphingCase(bundle);
         }
 
         public void LoadAudioSourceMorphingCase(AssetBundle bundle)
         {
-            SoundOpenUI = bundle.LoadAsset<AudioSource>("Assets/LethalModding/sounds/UI/close.ogg");
-            SoundCloseUI = bundle.LoadAsset<AudioSource>("Assets/LethalModding/sounds/UI/open.ogg");
+            SoundOpenUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/sounds/open.ogg");
+            SoundCloseUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/sounds/close.ogg");
 
             if (SoundCloseUI == null || SoundOpenUI == null)
-            {
                 Logger.LogError("Sounds Morphing Case load fail");
-            }
-            Logger.LogInfo("Sounds Morphing Case loaded successfully");
+        }
+
+        public void OnApplicationQuit()
+        {
+            CosmeticsManager.RestorePreviousCosmetics();
         }
 
         public void LoadUIMorphingCase(AssetBundle bundle)
@@ -72,10 +86,7 @@ namespace Silly_Things
             UI_MorphingCase = bundle.LoadAsset<GameObject>("Assets/LethalModding/MorphingCase/UI/UICase.prefab");
 
             if (UI_MorphingCase == null)
-            {
                 Logger.LogError("UI Morphing Case load fail");
-            }
-            Logger.LogInfo("UI Morphing Case loaded successfully");
         }
 
         public void LoadMorphingCase(AssetBundle bundle)
@@ -84,28 +95,23 @@ namespace Silly_Things
             if (morphingCase == null)
             {
                 Logger.LogError("Morphing Case is NULL");
+                return;
             }
-            else
+
+            if (morphingCase.spawnPrefab == null)
             {
-                if (morphingCase.spawnPrefab == null)
-                    Logger.LogError("Morphing Case spawnPrefab is NULL");
-                else
-                {
-                    MorphingCase script = morphingCase.spawnPrefab.AddComponent<MorphingCase>();
-                    script.grabbable = true;
-                    script.grabbableToEnemies = true;
-                    script.itemProperties = morphingCase;
-                }
+                Logger.LogError("Morphing Case spawnPrefab is NULL");
+                return;
             }
+
+            MorphingCase script = morphingCase.spawnPrefab.AddComponent<MorphingCase>();
+            script.grabbable = true;
+            script.grabbableToEnemies = true;
+            script.itemProperties = morphingCase;
 
             NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
             Utilities.FixMixerGroups(morphingCase.spawnPrefab);
             Items.RegisterScrap(morphingCase, SillyThingsConfig.MorphingCaseItemRarity.Value, Levels.LevelTypes.All);
-
-            /*TerminalNode node = ScriptableObject.CreateInstance<TerminalNode>();
-            node.clearPreviousText = true;
-            node.displayText = "this is silly case";
-            Items.RegisterShopItem(morphingCase, null, null, node, 320);*/
 
             Logger.LogInfo("Morphing Case loaded successfully");
         }

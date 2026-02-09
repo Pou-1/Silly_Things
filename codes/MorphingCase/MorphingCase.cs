@@ -20,6 +20,7 @@
         public override void DiscardItem()
         {
             base.DiscardItem();
+            Plugin.Instance.CosmeticsManager.RestorePreviousCosmetics();
             ui.ForceCloseUI();
         }
     }
