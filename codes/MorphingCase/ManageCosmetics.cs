@@ -8,9 +8,8 @@ namespace Silly_Things.codes.MorphingCase
 {
     internal class ManageCosmetics
     {
-        private List<string> previousCosmetics;
+        private List<string>? previousCosmetics;
         private int previousSuitId = -1;
-        private string previousUsername;
 
         public bool HasStoredCosmetics => previousCosmetics != null;
 
@@ -18,9 +17,6 @@ namespace Silly_Things.codes.MorphingCase
         {
             PlayerControllerB target = StartOfRound.Instance.localPlayerController;
             if (source == null || target == null || !target.isPlayerControlled)
-                return;
-
-            if (previousUsername != null)
                 return;
 
             SavePreviousState(target);
@@ -39,15 +35,12 @@ namespace Silly_Things.codes.MorphingCase
 
             previousCosmetics = null;
             previousSuitId = -1;
-            previousUsername = null;
         }
 
         private void SavePreviousState(PlayerControllerB target)
         {
             previousCosmetics = new List<string>(CosmeticRegistry.locallySelectedCosmetics);
             previousSuitId = target.currentSuitID;
-
-            previousUsername = target.playerUsername;
         }
 
         private void ApplyCosmetics(PlayerControllerB target, PlayerControllerB source)
@@ -69,31 +62,20 @@ namespace Silly_Things.codes.MorphingCase
             CosmeticSyncPatch.SyncCosmeticsToOtherClients();
         }
 
-        [ServerRpc(RequireOwnership = false)]
         private void ApplySuit(PlayerControllerB target, PlayerControllerB source)
         {
             target.currentSuitID = source.currentSuitID;
             target.movementAudio.PlayOneShot(StartOfRound.Instance.changeSuitSFX);
-            RefreshSuitModel(target);
 
-            UnlockableSuit.SwitchSuitForPlayer(target, source.currentSuitID);
-
+            MorphingCase.Instance?.ChangeSuitServerRpc(target.playerClientId, source.currentSuitID);
         }
 
         private void RestoreSuit(PlayerControllerB target)
         {
             if (previousSuitId != -1)
             {
-                target.currentSuitID = previousSuitId;
-                RefreshSuitModel(target);
+                MorphingCase.Instance?.ChangeSuitServerRpc(target.playerClientId, previousSuitId);
             }
-        }
-
-        private void RefreshSuitModel(PlayerControllerB target)
-        {
-            var method = target.GetType().GetMethod("UpdateSuitVisuals", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            if (method != null)
-                method.Invoke(target, null);
         }
 
         public static bool IsValidPlayer(PlayerControllerB player)

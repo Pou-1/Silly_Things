@@ -35,7 +35,7 @@ namespace Silly_Things.codes.MorphingCase
 
         public void OpenUI()
         {
-            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.Instance.SoundOpenUI);
+            MorphingCase.Instance?.SyncSoundsServerRpc(0);
 
             uiInstance = Object.Instantiate(Plugin.Instance.UI_MorphingCase);
             if (uiInstance == null)
@@ -59,7 +59,7 @@ namespace Silly_Things.codes.MorphingCase
 
         public void ForceCloseUI()
         {
-            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.Instance.SoundCloseUI);
+            MorphingCase.Instance?.SyncSoundsServerRpc(1);
 
             if (uiInstance != null)
                 Object.Destroy(uiInstance);
@@ -68,7 +68,6 @@ namespace Silly_Things.codes.MorphingCase
             isUIOpen = false;
 
             EnableCursor(false);
-
         }
 
         private void CacheUIRefs()
