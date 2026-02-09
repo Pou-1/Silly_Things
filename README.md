@@ -2,8 +2,6 @@
 
 This mod add a new **Item** to the game !
 
-Compatible with v70 of Lethal Company.
-
 ## Dependencies 🤫
 
 -   [BepInExPack](https://thunderstore.io/c/lethal-company/p/BepInEx/BepInExPack/)
