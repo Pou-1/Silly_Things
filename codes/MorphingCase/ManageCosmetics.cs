@@ -1,104 +1,72 @@
 ﻿using GameNetcodeStuff;
-using Lethal_Battle;
 using MoreCompany;
 using MoreCompany.Cosmetics;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Silly_Things.codes.MorphingCase
 {
     internal class ManageCosmetics
     {
-        public List<string> previousCosmetics;
+        private List<string> previousCosmetics;
+        private int previousSuitId = -1;
 
         public void MorphToPlayer(PlayerControllerB source)
         {
-            Plugin.log.LogInfo("[ManageCosmetics] MorphToPlayer called");
-
             PlayerControllerB target = StartOfRound.Instance.localPlayerController;
             if (source == null || target == null)
-            {
-                Plugin.log.LogError("[ManageCosmetics] source or target null");
                 return;
-            }
-
-            Plugin.log.LogInfo($"[ManageCosmetics] Source: {source.playerUsername} | Target: {target.playerUsername}");
-
             if (!target.isPlayerControlled)
-            {
-                Plugin.log.LogWarning("[ManageCosmetics] Target not controlled");
                 return;
-            }
-
-            target.movementAudio.PlayOneShot(StartOfRound.Instance.changeSuitSFX);
-            Plugin.log.LogInfo("[ManageCosmetics] Played suit change SFX");
-
-            target.currentSuitID = source.currentSuitID;
-
-            Plugin.log.LogInfo($"[ManageCosmetics] Suit copied: {source.currentSuitID}");
-
-            if (!MainClass.playerIdsAndCosmetics.TryGetValue((int)source.playerClientId, out List<string> sourceCosmetics))
-            {
-                Plugin.log.LogError("[ManageCosmetics] No cosmetics found for source player");
-                return;
-            }
-
-            Plugin.log.LogInfo($"[ManageCosmetics] Source cosmetics count: {sourceCosmetics.Count}");
 
             if (previousCosmetics == null)
             {
                 previousCosmetics = new List<string>(CosmeticRegistry.locallySelectedCosmetics);
-                Plugin.log.LogInfo($"[ManageCosmetics] Saved previous cosmetics: {previousCosmetics.Count}");
+                previousSuitId = target.currentSuitID;
+                Plugin.Logger.LogError("previousCosmetics");
+                Plugin.Logger.LogError(previousCosmetics);
             }
 
-            CosmeticRegistry.locallySelectedCosmetics.Clear();
-            Plugin.log.LogInfo("[ManageCosmetics] Cleared local cosmetics");
+            target.movementAudio.PlayOneShot(StartOfRound.Instance.changeSuitSFX);
+            target.currentSuitID = source.currentSuitID;
 
+            if (!MainClass.playerIdsAndCosmetics.TryGetValue((int)source.playerClientId, out List<string> sourceCosmetics))
+                return;
+
+            CosmeticRegistry.locallySelectedCosmetics.Clear();
             CosmeticRegistry.locallySelectedCosmetics.AddRange(sourceCosmetics);
-            Plugin.log.LogInfo("[ManageCosmetics] Applied source cosmetics locally");
 
             CosmeticSyncPatch.SyncCosmeticsToOtherClients();
-            Plugin.log.LogInfo("[ManageCosmetics] SyncCosmeticsToOtherClients called");
         }
 
         public void RestorePreviousCosmetics()
         {
-            Plugin.log.LogInfo("[ManageCosmetics] RestorePreviousCosmetics called");
-
             if (previousCosmetics == null)
-            {
-                Plugin.log.LogWarning("[ManageCosmetics] No previous cosmetics to restore");
                 return;
-            }
 
+            PlayerControllerB target = StartOfRound.Instance.localPlayerController;
+
+            Plugin.Logger.LogError("restore");
+            Plugin.Logger.LogError(CosmeticRegistry.locallySelectedCosmetics);
             CosmeticRegistry.locallySelectedCosmetics.Clear();
-            Plugin.log.LogInfo("[ManageCosmetics] Cleared local cosmetics");
-
+            Plugin.Logger.LogError(CosmeticRegistry.locallySelectedCosmetics);
             CosmeticRegistry.locallySelectedCosmetics.AddRange(previousCosmetics);
-            Plugin.log.LogInfo($"[ManageCosmetics] Restored cosmetics count: {previousCosmetics.Count}");
+            Plugin.Logger.LogError(CosmeticRegistry.locallySelectedCosmetics);
+
+            if (previousSuitId != -1)
+                target.currentSuitID = previousSuitId;
 
             CosmeticSyncPatch.SyncCosmeticsToOtherClients();
-            Plugin.log.LogInfo("[ManageCosmetics] SyncCosmeticsToOtherClients called");
 
+            Plugin.Logger.LogError(CosmeticRegistry.GetCosmeticsToSync());
             previousCosmetics = null;
-            Plugin.log.LogInfo("[ManageCosmetics] previousCosmetics reset");
+            previousSuitId = -1;
         }
 
         public static bool IsValidPlayer(PlayerControllerB player)
         {
-            bool valid =
-                player != null &&
-                player.isPlayerControlled &&
-                !string.IsNullOrEmpty(player.playerUsername);
-
-
-            if (!valid && player != null)
-                Plugin.log.LogInfo($"[ManageCosmetics] Invalid player skipped: {player.playerUsername}, isplayercontrol : {player.isPlayerControlled}");
-            else
-            {
-                Plugin.log.LogInfo($"[ManageCosmetics] Valid player: {player.playerUsername}, isplayercontrol : {player.isPlayerControlled}");
-            }
-            return valid;
+            return player != null &&
+                   player.isPlayerControlled &&
+                   !string.IsNullOrEmpty(player.playerUsername);
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using GameNetcodeStuff;
-using UnityEngine;
-
-namespace Silly_Things.codes.MorphingCase
+﻿namespace Silly_Things.codes.MorphingCase
 {
     public class MorphingCase : PhysicsProp
     {
