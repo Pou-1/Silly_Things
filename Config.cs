@@ -14,6 +14,11 @@ namespace Silly_Things
             get; private set;
         }
 
+        public ConfigEntry<int> SnakeCardboardBox
+        {
+            get; private set;
+        }
+
         public Config(ConfigFile configFile)
         {
             MorphingCaseItemRarity = configFile.Bind(
@@ -22,6 +27,16 @@ namespace Silly_Things
                 10,
                 "Rarity of the Morphing Case Item (higher = more common)."
             );
+
+            /*SnakeCardboardBox = configFile.Bind(
+                "Spawn Rates",
+                "SnakeCardboardBoxItemRarity",
+                10,
+                "Rarity of the Snake Card Box Item (higher = more common)."
+            );*/
+
+            configFile.Save();
+            configFile.SaveOnConfigSet = true;
         }
     }
 }

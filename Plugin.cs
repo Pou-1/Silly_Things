@@ -3,9 +3,11 @@ using BepInEx.Logging;
 using HarmonyLib;
 using LethalLib.Modules;
 using Silly_Things.codes.MorphingCase;
+using Silly_Things.codes.SnakeCardboardBox;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Silly_Things
 {
@@ -22,6 +24,7 @@ namespace Silly_Things
         internal static Config SillyThingsConfig { get; private set; } = null!;
 
         public GameObject? UI_MorphingCase;
+        public GameObject? UI_SnakeCardboardBox;
 
         internal ManageCosmetics CosmeticsManager { get; private set; } = null!;
 
@@ -65,6 +68,9 @@ namespace Silly_Things
             LoadUIMorphingCase(bundle);
             LoadMorphingCase(bundle);
             LoadAudioSourceMorphingCase(bundle);
+
+            //LoadSnakeCardboardBox(bundle);
+            //LoadUISnakeCardboardBox(bundle);
         }
 
         public void LoadAudioSourceMorphingCase(AssetBundle bundle)
@@ -114,6 +120,41 @@ namespace Silly_Things
             Items.RegisterScrap(morphingCase, SillyThingsConfig.MorphingCaseItemRarity.Value, Levels.LevelTypes.All);
 
             Logger.LogInfo("Morphing Case loaded successfully");
+        }
+
+        public void LoadSnakeCardboardBox(AssetBundle bundle)
+        {
+            Item snakeCardboardBox = bundle.LoadAsset<Item>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/CardBoardBoxItem.asset");
+            if (snakeCardboardBox == null)
+            {
+                Logger.LogError("snakeCardboardBox is NULL");
+                return;
+            }
+
+            if (snakeCardboardBox.spawnPrefab == null)
+            {
+                Logger.LogError("snakeCardboardBox spawnPrefab is NULL");
+                return;
+            }
+
+            SnakeCardboardBox script = snakeCardboardBox.spawnPrefab.AddComponent<SnakeCardboardBox>();
+            script.grabbable = true;
+            script.name = "A simple cardboard";
+            script.grabbableToEnemies = true;
+            script.itemProperties = snakeCardboardBox;
+
+            NetworkPrefabs.RegisterNetworkPrefab(snakeCardboardBox.spawnPrefab);
+            Utilities.FixMixerGroups(snakeCardboardBox.spawnPrefab);
+            Items.RegisterScrap(snakeCardboardBox, SillyThingsConfig.SnakeCardboardBox.Value, Levels.LevelTypes.All);
+
+            Logger.LogInfo("snakeCardboardBox loaded successfully");
+        }
+        public void LoadUISnakeCardboardBox(AssetBundle bundle)
+        {
+            UI_SnakeCardboardBox = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/UI/CardboardBox.prefab");
+
+            if (UI_MorphingCase == null)
+                Logger.LogError("UI snakeCardboardBox load fail");
         }
     }
 }
