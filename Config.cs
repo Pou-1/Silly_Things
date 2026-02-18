@@ -4,11 +4,6 @@ namespace Silly_Things
 {
     internal class Config
     {
-        public ConfigEntry<bool> EnableDebugMode
-        {
-            get; private set;
-        }
-
         public ConfigEntry<int> MorphingCaseItemRarity
         {
             get; private set;
@@ -21,6 +16,7 @@ namespace Silly_Things
 
         public Config(ConfigFile configFile)
         {
+            configFile.SaveOnConfigSet = false;
             MorphingCaseItemRarity = configFile.Bind(
                 "Spawn Rates",
                 "MorphingCaseItemRarity",
@@ -28,12 +24,12 @@ namespace Silly_Things
                 "Rarity of the Morphing Case Item (higher = more common)."
             );
 
-            /*SnakeCardboardBox = configFile.Bind(
+            SnakeCardboardBox = configFile.Bind(
                 "Spawn Rates",
                 "SnakeCardboardBoxItemRarity",
                 10,
                 "Rarity of the Snake Card Box Item (higher = more common)."
-            );*/
+            );
 
             configFile.Save();
             configFile.SaveOnConfigSet = true;

@@ -8,6 +8,7 @@ namespace Silly_Things.codes.SnakeCardboardBox
 
         private bool isUIOpen;
         private GameObject? uiInstance;
+        public SnakeCardboardBox? box;
 
         public bool CanOpenUI(bool buttonDown)
         {
@@ -16,8 +17,6 @@ namespace Silly_Things.codes.SnakeCardboardBox
 
         public void OpenUI()
         {
-            SnakeCardboardBox.Instance?.SyncSoundsServerRpc(0);
-
             uiInstance = Object.Instantiate(Plugin.Instance.UI_SnakeCardboardBox);
             if (uiInstance == null)
             {
@@ -27,21 +26,29 @@ namespace Silly_Things.codes.SnakeCardboardBox
 
             StartOfRound.Instance.localPlayerController.Crouch(true);
             StartOfRound.Instance.localPlayerController.movementAudio.Pause();
-            SnakeCardboardBox.PlayerHiddenByBox = true;
-            
+
+            if (box != null)
+            {
+                box.SyncSoundsServerRpc(0);
+                box.PlayerHiddenByBox = true;
+            }
+
             isUIOpen = true;
         }
 
         public void CloseUI()
         {
-            SnakeCardboardBox.Instance?.SyncSoundsServerRpc(1);
-
             if (uiInstance != null)
                 Object.Destroy(uiInstance);
 
             StartOfRound.Instance.localPlayerController.Crouch(false);
             StartOfRound.Instance.localPlayerController.movementAudio.UnPause();
-            SnakeCardboardBox.PlayerHiddenByBox = false;
+            
+            if (box != null)
+            {
+                box.SyncSoundsServerRpc(1);
+                box.PlayerHiddenByBox = false;
+            }
 
             uiInstance = null;
             isUIOpen = false;

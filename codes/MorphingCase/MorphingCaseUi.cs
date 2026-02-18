@@ -8,6 +8,7 @@ namespace Silly_Things.codes.MorphingCase
 {
     internal class MorphingCaseUi
     {
+        public MorphingCase? morphingCase;
         public bool IsOpen => isUIOpen;
 
         private bool isUIOpen;
@@ -22,7 +23,7 @@ namespace Silly_Things.codes.MorphingCase
         private Transform? contentRight;
         private Transform? playerTemplate;
 
-        private ManageCosmetics? cosmeticsManager;
+        public ManageCosmetics? cosmeticsManager;
 
         private List<PlayerControllerB> overflowPlayers = new List<PlayerControllerB>();
         private int currentPage = 0;
@@ -35,7 +36,7 @@ namespace Silly_Things.codes.MorphingCase
 
         public void OpenUI()
         {
-            MorphingCase.Instance?.SyncSoundsServerRpc(0);
+            morphingCase?.SyncSoundsServerRpc(0);
 
             uiInstance = Object.Instantiate(Plugin.Instance.UI_MorphingCase);
             if (uiInstance == null)
@@ -59,7 +60,7 @@ namespace Silly_Things.codes.MorphingCase
 
         public void ForceCloseUI()
         {
-            MorphingCase.Instance?.SyncSoundsServerRpc(1);
+            morphingCase?.SyncSoundsServerRpc(1);
 
             if (uiInstance != null)
                 Object.Destroy(uiInstance);

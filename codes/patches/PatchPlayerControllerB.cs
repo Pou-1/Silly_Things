@@ -1,30 +1,23 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using Silly_Things.codes.SnakeCardboardBox;
 
 namespace Silly_Things.codes.patches
 {
-    /*[HarmonyPatch(typeof(PlayerControllerB))]
+   [HarmonyPatch(typeof(PlayerControllerB))]
     internal class PatchPlayerControllerB
     {
         [HarmonyPrefix]
         [HarmonyPatch("Crouch")]
-        public static bool BlockUncrouchWhileUsingBox(bool crouch)
+        public static bool BlockUncrouchWhileUsingBox(PlayerControllerB __instance, bool crouch)
         {
-            if (!crouch && SnakeCardboardBox.SnakeCardboardBox.Instance != null)
+            if (__instance.currentlyHeldObjectServer is SnakeCardboardBox.SnakeCardboardBox box)
             {
-                var uiField = typeof(SnakeCardboardBox.SnakeCardboardBox)
-                    .GetField("ui", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-                if (uiField != null)
+                if (box.PlayerHiddenByBox)
                 {
-                    var ui = uiField.GetValue(SnakeCardboardBox.SnakeCardboardBox.Instance) as SnakeCardboardBoxUi;
-                    if (ui != null && ui.IsOpen)
-                        return false;
+                    return false;
                 }
             }
-
             return true;
         }
-    }*/
+    }
 }

@@ -1,56 +1,67 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using UnityEngine;
+using System.Linq;
 
 namespace Silly_Things.codes.patches
 {
-    /*[HarmonyPatch(typeof(EnemyAI))]
+    [HarmonyPatch(typeof(EnemyAI))]
     internal class Patch_EnemyAI_PlayerIsTargetable
     {
-        [HarmonyPrefix]
-        [HarmonyPatch("PlayerIsTargetable")]
-        public static bool BlockTargetingWhileInSnakeBox(ref bool __result, PlayerControllerB playerScript, bool cannotBeInShip, bool overrideInsideFactoryCheck)
-        {
-            if (SnakeCardboardBox.SnakeCardboardBox.PlayerHiddenByBox &&
-                playerScript == StartOfRound.Instance.localPlayerController)
-            {
-                Plugin.Logger.LogInfo("PlayerIsTargetable BLOCKED");
-                __result = false;
-                return false;
-            }
-
-            Plugin.Logger.LogInfo("PlayerIsTargetable NOT BLOCKED");
-            return true;
-        }
-
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("GetAllPlayersInLineOfSight")]
-        public static bool BlockLOSWhenInSnakeBox(ref PlayerControllerB[] __result, float width, int range, Transform eyeObject, float proximityCheck, int layerMask)
+        public static void BlockLOSWhenInSnakeBox(ref PlayerControllerB[] __result)
         {
-            if (!SnakeCardboardBox.SnakeCardboardBox.PlayerHiddenByBox){
-                Plugin.Logger.LogInfo("LOS NOT BLOCKED");
-                return true;
-            }
+            if(__result == null)
+                return;
 
-            Plugin.Logger.LogInfo("LOS BLOCKED");
-
-            __result = null;
-            return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch("SetMovingTowardsTargetPlayer")]
-        public static bool BlockMovingTowardsTargetPlayer(PlayerControllerB playerScript)
-        {
-            if (SnakeCardboardBox.SnakeCardboardBox.PlayerHiddenByBox &&
-                playerScript == StartOfRound.Instance.localPlayerController)
+            foreach (var item in SnakeCardboardBox.SnakeCardboardBox.Instances)
             {
-                Plugin.Logger.LogInfo("BlockMovingTowardsTargetPlayer BLOCKED");
-                return false;
+                if (item.PlayerHiddenByBox)
+                {
+                    if (item.playerHeldBy != null && __result.Contains(item.playerHeldBy))
+                    {
+                        __result = __result.Where(player => player != item.playerHeldBy).ToArray();
+                    }
+                }
             }
 
-            Plugin.Logger.LogInfo("BlockMovingTowardsTargetPlayer NOT BLOCKED");
-            return true;
+            //Plugin.Logger.LogInfo("LOS BLOCKED");
         }
-    }*/
+
+        [HarmonyPostfix]
+        [HarmonyPatch("CheckLineOfSightForPlayer")]
+        public static void CheckLineOfSightForPlayerPrefixPatch(ref PlayerControllerB __result)
+        {
+            if (__result == null)
+                return;
+            
+            foreach (var item in SnakeCardboardBox.SnakeCardboardBox.Instances)
+            {
+                if (item.PlayerHiddenByBox && __result == item.playerHeldBy)
+                {
+                    __result = null;
+                    //Plugin.Logger.LogInfo("LOS one player BLOCKED");
+                    return;
+                }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("CheckLineOfSightForClosestPlayer")]
+        public static void CheckLineOfSightForClosestPlayerPrefixPatch(ref PlayerControllerB __result)
+        {
+            if (__result == null)
+                return;
+            
+            foreach (var item in SnakeCardboardBox.SnakeCardboardBox.Instances)
+            {
+                if (item.PlayerHiddenByBox && __result == item.playerHeldBy)
+                {
+                    __result = null;
+                    //Plugin.Logger.LogInfo("CheckLineOfSightForClosestPlayer BLOCKED");
+                    return;
+                }
+            }
+        }
+    }
 }

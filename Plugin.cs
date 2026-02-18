@@ -4,8 +4,10 @@ using HarmonyLib;
 using LethalLib.Modules;
 using Silly_Things.codes.MorphingCase;
 using Silly_Things.codes.SnakeCardboardBox;
+using Silly_Things.Codes.PortalGun;
 using System.IO;
 using System.Reflection;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -16,20 +18,27 @@ namespace Silly_Things
     {
         const string GUID = "POUY.SILLY_THINGS";
         const string NAME = "Silly Things";
-        const string VERSION = "0.0.1";
+        const string VERSION = "0.0.2";
 
         public static Plugin Instance { get; private set; } = null!;
         internal static new ManualLogSource Logger { get; private set; } = null!;
-        public readonly Harmony harmony = new Harmony(GUID);
         internal static Config SillyThingsConfig { get; private set; } = null!;
+        public readonly Harmony harmony = new Harmony(GUID);
 
+        //Morphing Case
         public GameObject? UI_MorphingCase;
-        public GameObject? UI_SnakeCardboardBox;
-
         internal ManageCosmetics CosmeticsManager { get; private set; } = null!;
-
         public AudioClip SoundOpenUI = null!;
         public AudioClip SoundCloseUI = null!;
+
+        //Snake CardBoard
+        public GameObject? UI_SnakeCardboardBox;
+        public GameObject? BigCardboardBoxPrefab;
+        public AudioClip SoundOpenCardboardBox = null!;
+        public AudioClip SoundCloseCardboardBox = null!;
+        
+        //Portal Gun
+        public GameObject? PortalPrefab;
 
         public void Awake()
         {
@@ -65,21 +74,18 @@ namespace Silly_Things
                 return;
             }
 
-            LoadUIMorphingCase(bundle);
+            LoadAudioSource(bundle);
             LoadMorphingCase(bundle);
-            LoadAudioSourceMorphingCase(bundle);
-
-            //LoadSnakeCardboardBox(bundle);
-            //LoadUISnakeCardboardBox(bundle);
+            LoadSnakeCardboardBox(bundle);
+            LoadPortalGun(bundle);
         }
 
-        public void LoadAudioSourceMorphingCase(AssetBundle bundle)
+        public void LoadAudioSource(AssetBundle bundle)
         {
-            SoundOpenUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/sounds/open.ogg");
-            SoundCloseUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/sounds/close.ogg");
-
-            if (SoundCloseUI == null || SoundOpenUI == null)
-                Logger.LogError("Sounds Morphing Case load fail");
+            SoundOpenUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/MorphingCase/Case/open.ogg");
+            SoundCloseUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/MorphingCase/Case/close.ogg");
+            SoundOpenCardboardBox = bundle.LoadAsset<AudioClip>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/open.ogg");
+            SoundCloseCardboardBox = bundle.LoadAsset<AudioClip>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/close.ogg");
         }
 
         public void OnApplicationQuit()
@@ -87,74 +93,77 @@ namespace Silly_Things
             CosmeticsManager.RestorePreviousCosmetics();
         }
 
-        public void LoadUIMorphingCase(AssetBundle bundle)
-        {
-            UI_MorphingCase = bundle.LoadAsset<GameObject>("Assets/LethalModding/MorphingCase/UI/UICase.prefab");
-
-            if (UI_MorphingCase == null)
-                Logger.LogError("UI Morphing Case load fail");
-        }
-
         public void LoadMorphingCase(AssetBundle bundle)
         {
+            UI_MorphingCase = bundle.LoadAsset<GameObject>("Assets/LethalModding/MorphingCase/UI/UICase.prefab");
             Item morphingCase = bundle.LoadAsset<Item>("Assets/LethalModding/MorphingCase/Case/ShapeshiftCaseItem.asset");
-            if (morphingCase == null)
-            {
-                Logger.LogError("Morphing Case is NULL");
-                return;
-            }
-
-            if (morphingCase.spawnPrefab == null)
-            {
-                Logger.LogError("Morphing Case spawnPrefab is NULL");
-                return;
-            }
-
             MorphingCase script = morphingCase.spawnPrefab.AddComponent<MorphingCase>();
+            script.name = "Morphing Case";
             script.grabbable = true;
             script.grabbableToEnemies = true;
             script.itemProperties = morphingCase;
 
-            NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
-            Utilities.FixMixerGroups(morphingCase.spawnPrefab);
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
             Items.RegisterScrap(morphingCase, SillyThingsConfig.MorphingCaseItemRarity.Value, Levels.LevelTypes.All);
-
-            Logger.LogInfo("Morphing Case loaded successfully");
         }
 
         public void LoadSnakeCardboardBox(AssetBundle bundle)
         {
+            BigCardboardBoxPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/BoxOnPlayer/CardBoardModel.prefab");
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BigCardboardBoxPrefab);
+
+            UI_SnakeCardboardBox = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/UI/CardboardBox.prefab");
+
             Item snakeCardboardBox = bundle.LoadAsset<Item>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/CardBoardBoxItem.asset");
-            if (snakeCardboardBox == null)
-            {
-                Logger.LogError("snakeCardboardBox is NULL");
-                return;
-            }
-
-            if (snakeCardboardBox.spawnPrefab == null)
-            {
-                Logger.LogError("snakeCardboardBox spawnPrefab is NULL");
-                return;
-            }
-
             SnakeCardboardBox script = snakeCardboardBox.spawnPrefab.AddComponent<SnakeCardboardBox>();
             script.grabbable = true;
             script.name = "A simple cardboard";
             script.grabbableToEnemies = true;
             script.itemProperties = snakeCardboardBox;
-
-            NetworkPrefabs.RegisterNetworkPrefab(snakeCardboardBox.spawnPrefab);
-            Utilities.FixMixerGroups(snakeCardboardBox.spawnPrefab);
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(snakeCardboardBox.spawnPrefab);
             Items.RegisterScrap(snakeCardboardBox, SillyThingsConfig.SnakeCardboardBox.Value, Levels.LevelTypes.All);
-
-            Logger.LogInfo("snakeCardboardBox loaded successfully");
         }
-        public void LoadUISnakeCardboardBox(AssetBundle bundle)
-        {
-            UI_SnakeCardboardBox = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/UI/CardboardBox.prefab");
 
-            if (UI_MorphingCase == null)
-                Logger.LogError("UI snakeCardboardBox load fail");
+        public void LoadPortalGun(AssetBundle bundle)
+        {
+            LoadPortalPrefab(bundle);
+            Item portalGunItem = bundle.LoadAsset<Item>("Assets/LethalModding/PortalGun/PortalGunItem.asset");
+            PortalGun script = portalGunItem.spawnPrefab.AddComponent<PortalGun>();
+            script.grabbable = true;
+            script.name = "Portal Gun";
+            script.grabbableToEnemies = true;
+            script.itemProperties = portalGunItem;
+
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(portalGunItem.spawnPrefab);
+            Items.RegisterScrap(portalGunItem, SillyThingsConfig.SnakeCardboardBox.Value, Levels.LevelTypes.All);
+        }
+
+        public void LoadPortalPrefab(AssetBundle bundle)
+        {
+            PortalPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/PortalGun/portal/Portal.prefab");
+            if (PortalPrefab == null)
+            {
+                Logger.LogError("Portal prefab not found!");
+                return;
+            }
+
+            if (PortalPrefab.GetComponent<Portal>() == null)
+                PortalPrefab.AddComponent<Portal>();
+
+            Rigidbody rb = PortalPrefab.GetComponent<Rigidbody>();
+            if (rb == null)
+                rb = PortalPrefab.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+
+            Collider col = PortalPrefab.GetComponent<Collider>();
+            if (col == null)
+                col = PortalPrefab.AddComponent<BoxCollider>();
+            col.isTrigger = true;
+
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(PortalPrefab);
+
+            Logger.LogMessage("Portal prefab registered!");
         }
     }
 }

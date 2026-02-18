@@ -1,17 +1,24 @@
 ﻿using GameNetcodeStuff;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace Silly_Things.codes.MorphingCase
 {
     public class MorphingCase : PhysicsProp
     {
         private readonly MorphingCaseUi ui = new MorphingCaseUi();
-        public static MorphingCase? Instance { get; set; }
+        private AudioSource? audio;
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Instance = this;
+            ui.morphingCase = this;
+            audio = gameObject.transform.Find("Audio").GetComponent<AudioSource>();
+
+            if (ui.cosmeticsManager != null)
+            {
+                ui.cosmeticsManager.morphingCase = this;
+            }
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
@@ -50,9 +57,9 @@ namespace Silly_Things.codes.MorphingCase
         public void SyncSoundsClientRpc(int idSound)
         {
             if(idSound == 0)
-                HUDManager.Instance.UIAudio.PlayOneShot(Plugin.Instance.SoundOpenUI);
+                audio?.PlayOneShot(Plugin.Instance.SoundOpenUI);
             else if (idSound == 1)
-                HUDManager.Instance.UIAudio.PlayOneShot(Plugin.Instance.SoundCloseUI);
+                audio?.PlayOneShot(Plugin.Instance.SoundCloseUI);
         }
 
         [ClientRpc]

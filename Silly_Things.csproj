@@ -75,6 +75,9 @@
     <Reference Include="UnityEngine.InputModule">
       <HintPath>dependencies\UnityEngine.InputModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>dependencies\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>dependencies\UnityEngine.UI.dll</HintPath>
     </Reference>
