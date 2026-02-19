@@ -1,8 +1,6 @@
 ﻿using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Windows;
 
 namespace Silly_Things.Codes.PortalGun
 {
@@ -13,7 +11,6 @@ namespace Silly_Things.Codes.PortalGun
         private static NetworkObject portalA;
         private static NetworkObject portalB;
         private bool shootPortalA = true;
-        private bool isPocketed = true;
 
         public override void OnNetworkSpawn()
         {
@@ -143,7 +140,6 @@ namespace Silly_Things.Codes.PortalGun
 
             Portal portal = obj.GetComponent<Portal>();
             portal.Setup(isPortalA);
-
             return netObj;
         }
 

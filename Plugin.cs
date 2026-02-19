@@ -7,9 +7,7 @@ using Silly_Things.codes.SnakeCardboardBox;
 using Silly_Things.Codes.PortalGun;
 using System.IO;
 using System.Reflection;
-using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Silly_Things
 {
@@ -77,7 +75,7 @@ namespace Silly_Things
             LoadAudioSource(bundle);
             LoadMorphingCase(bundle);
             LoadSnakeCardboardBox(bundle);
-            LoadPortalGun(bundle);
+            //LoadPortalGun(bundle);
         }
 
         public void LoadAudioSource(AssetBundle bundle)
@@ -103,14 +101,14 @@ namespace Silly_Things
             script.grabbableToEnemies = true;
             script.itemProperties = morphingCase;
 
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
             Items.RegisterScrap(morphingCase, SillyThingsConfig.MorphingCaseItemRarity.Value, Levels.LevelTypes.All);
         }
 
         public void LoadSnakeCardboardBox(AssetBundle bundle)
         {
             BigCardboardBoxPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/BoxOnPlayer/CardBoardModel.prefab");
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BigCardboardBoxPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(BigCardboardBoxPrefab);
 
             UI_SnakeCardboardBox = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/UI/CardboardBox.prefab");
 
@@ -120,7 +118,7 @@ namespace Silly_Things
             script.name = "A simple cardboard";
             script.grabbableToEnemies = true;
             script.itemProperties = snakeCardboardBox;
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(snakeCardboardBox.spawnPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(snakeCardboardBox.spawnPrefab);
             Items.RegisterScrap(snakeCardboardBox, SillyThingsConfig.SnakeCardboardBox.Value, Levels.LevelTypes.All);
         }
 
@@ -134,7 +132,7 @@ namespace Silly_Things
             script.grabbableToEnemies = true;
             script.itemProperties = portalGunItem;
 
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(portalGunItem.spawnPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(portalGunItem.spawnPrefab);
             Items.RegisterScrap(portalGunItem, SillyThingsConfig.SnakeCardboardBox.Value, Levels.LevelTypes.All);
         }
 
@@ -161,9 +159,7 @@ namespace Silly_Things
                 col = PortalPrefab.AddComponent<BoxCollider>();
             col.isTrigger = true;
 
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(PortalPrefab);
-
-            Logger.LogMessage("Portal prefab registered!");
+            NetworkPrefabs.RegisterNetworkPrefab(PortalPrefab);
         }
     }
 }
