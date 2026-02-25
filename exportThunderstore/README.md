@@ -1,6 +1,6 @@
 # SILLY THINGS
 
-This mod add a new **Item** to the game !
+This mod add some new **Items** to the game !
 
 ## Dependencies 🤫
 

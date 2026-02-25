@@ -12,6 +12,7 @@ namespace Silly_Things.codes.SnakeCardboardBox
         public bool PlayerHiddenByBox = false;
         private ulong spawnedBoxId;
         private AudioSource? audio;
+        private GameObject? boxObject;
 
         public override void OnNetworkSpawn()
         {
@@ -32,19 +33,22 @@ namespace Silly_Things.codes.SnakeCardboardBox
             if (!playerHeldBy.IsOwner)
                 return;
 
-            if (ui.IsOpen)
+            if (playerHeldBy.thisController.isGrounded)
             {
-                PlayerHiddenByBox = false;
-                ui.CloseUI();
-                RemoveBoxServerRpc();
-                SyncSoundsServerRpc(1);
-            }
-            else
-            {
-                ui.OpenUI();
-                PlayerHiddenByBox = true;
-                SpawnBoxOnPlayerServerRpc(playerHeldBy.NetworkObjectId);
-                SyncSoundsServerRpc(0);
+                if (ui.IsOpen)
+                {
+                    PlayerHiddenByBox = false;
+                    ui.CloseUI();
+                    RemoveBoxServerRpc();
+                    SyncSoundsServerRpc(1);
+                }
+                else
+                {
+                    ui.OpenUI();
+                    PlayerHiddenByBox = true;
+                    SpawnBoxOnPlayerServerRpc();
+                    SyncSoundsServerRpc(0);
+                }
             }
         }
 
@@ -79,54 +83,32 @@ namespace Silly_Things.codes.SnakeCardboardBox
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnBoxOnPlayerServerRpc(ulong playerId)
+        public void SpawnBoxOnPlayerServerRpc()
         {
-            GameObject boxInstance = Instantiate(Plugin.Instance.BigCardboardBoxPrefab);
-
-            NetworkObject netObj = boxInstance.GetComponent<NetworkObject>();
-
-            netObj.Spawn(true);
-
-            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject playerNetObj))
-            {
-                PlayerControllerB player = playerNetObj.GetComponent<PlayerControllerB>();
-                if (player != null)
-                {
-                    Transform parent = player.thisPlayerBody != null ? player.thisPlayerBody : player.transform;
-
-                    netObj.TrySetParent(parent, false);
-                    netObj.transform.localPosition = new Vector3(0f, 1.8f, 0f);
-                    netObj.transform.localRotation = Quaternion.identity;
-                }
-            }
-
-            spawnedBoxId = netObj.NetworkObjectId;
-
-            HideBoxForOwnerClientRpc(netObj.NetworkObjectId, playerId);
+            SpawnBoxOnPlayerClientRpc();
         }
 
         [ClientRpc]
-        public void HideBoxForOwnerClientRpc(ulong boxId, ulong ownerId)
+        public void SpawnBoxOnPlayerClientRpc()
         {
-            if (ownerId != NetworkManager.Singleton.LocalClientId)
-                return;
-
-            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects
-                .TryGetValue(boxId, out NetworkObject netObj))
+            if (playerHeldBy != GameNetworkManager.Instance.localPlayerController)
             {
-                Renderer[] renderers = netObj.GetComponentsInChildren<Renderer>(true);
-                foreach (Renderer r in renderers)
-                    r.enabled = false;
+                boxObject = Instantiate(Plugin.Instance.BigCardboardBoxPrefab, playerHeldBy.transform.position + new Vector3(0f, 0f, 0f), playerHeldBy.transform.rotation, playerHeldBy.transform);
             }
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void RemoveBoxServerRpc()
         {
-            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects
-                .TryGetValue(spawnedBoxId, out NetworkObject netObj))
+            RemoveBoxClientRpc();
+        }
+
+        [ClientRpc]
+        public void RemoveBoxClientRpc()
+        {
+            if (boxObject != null)
             {
-                netObj.Despawn(true);
+                Destroy(boxObject);
             }
         }
     }

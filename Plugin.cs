@@ -100,7 +100,6 @@ namespace Silly_Things
             script.grabbable = true;
             script.grabbableToEnemies = true;
             script.itemProperties = morphingCase;
-
             NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
             Items.RegisterScrap(morphingCase, SillyThingsConfig.MorphingCaseItemRarity.Value, Levels.LevelTypes.All);
         }
@@ -108,7 +107,6 @@ namespace Silly_Things
         public void LoadSnakeCardboardBox(AssetBundle bundle)
         {
             BigCardboardBoxPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/BoxOnPlayer/CardBoardModel.prefab");
-            NetworkPrefabs.RegisterNetworkPrefab(BigCardboardBoxPrefab);
 
             UI_SnakeCardboardBox = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/UI/CardboardBox.prefab");
 

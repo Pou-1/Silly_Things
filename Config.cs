@@ -20,7 +20,7 @@ namespace Silly_Things
             MorphingCaseItemRarity = configFile.Bind(
                 "Spawn Rates",
                 "MorphingCaseItemRarity",
-                10,
+                15,
                 "Rarity of the Morphing Case Item (higher = more common)."
             );
 

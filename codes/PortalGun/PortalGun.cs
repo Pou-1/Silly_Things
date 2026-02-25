@@ -100,6 +100,7 @@ namespace Silly_Things.Codes.PortalGun
 
             SyncSoundsClientRpc(0);
         }
+
         private PlayerControllerB GetPlayerFromClient(ulong clientId)
         {
             foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
@@ -111,6 +112,7 @@ namespace Silly_Things.Codes.PortalGun
             Plugin.Logger.LogError("Player not found for clientId: " + clientId);
             return null;
         }
+
         private bool TryGetHitPoint(PlayerControllerB player, out RaycastHit hit)
         {
             hit = default;
@@ -130,17 +132,84 @@ namespace Silly_Things.Codes.PortalGun
         }
         private NetworkObject SpawnPortal(RaycastHit hit, bool isPortalA)
         {
-            Quaternion rotation = Quaternion.LookRotation(-hit.normal, Vector3.up);
-            Vector3 spawnPos = hit.point + hit.normal * 0.02f;
+            if (Plugin.Instance.PortalPrefab == null)
+                return null;
 
-            GameObject obj = Instantiate(Plugin.Instance.PortalPrefab, spawnPos, rotation);
+            Quaternion rotation = CalculatePortalRotation(hit.normal);
+            Vector3 spawnPos = hit.point + hit.normal * 0.01f;
+
+            GameObject obj = CreatePortalObject(spawnPos, rotation);
+            if (obj == null)
+                return null;
+
+            Portal portal = SetupPortalComponent(obj, isPortalA);
+            PortalView view = SetupPortalView(obj, portal, isPortalA);
+            view.playerCameraTransform = playerHeldBy.gameplayCamera.transform;
+
+            Renderer rend = obj.GetComponentInChildren<Renderer>();
+            if (rend == null)
+                Plugin.Logger.LogError("Portal prefab missing a child Renderer for the portal screen!");
+
+            view.portalScreenRenderer = rend;
+
+
+            return obj.GetComponent<NetworkObject>();
+        }
+
+        private Quaternion CalculatePortalRotation(Vector3 normal)
+        {
+            if (Vector3.Dot(normal, Vector3.up) > 0.9f)
+                return Quaternion.Euler(0, playerHeldBy.gameplayCamera.transform.eulerAngles.y, 0);
+            else if (Vector3.Dot(normal, Vector3.down) > 0.9f)
+                return Quaternion.Euler(180, playerHeldBy.gameplayCamera.transform.eulerAngles.y, 0);
+            else
+            {
+                Vector3 forward = Vector3.Cross(Vector3.up, -normal);
+                return Quaternion.LookRotation(forward, Vector3.up);
+            }
+        }
+
+        private GameObject CreatePortalObject(Vector3 position, Quaternion rotation)
+        {
+            GameObject obj = Instantiate(Plugin.Instance.PortalPrefab, position, rotation);
 
             NetworkObject netObj = obj.GetComponent<NetworkObject>();
+            if (netObj == null)
+                netObj = obj.AddComponent<NetworkObject>();
             netObj.Spawn();
 
+            return obj;
+        }
+
+        private Portal SetupPortalComponent(GameObject obj, bool isPortalA)
+        {
             Portal portal = obj.GetComponent<Portal>();
+            if (portal == null)
+                portal = obj.AddComponent<Portal>();
             portal.Setup(isPortalA);
-            return netObj;
+            return portal;
+        }
+
+        private PortalView SetupPortalView(GameObject obj, Portal portal, bool isPortalA)
+        {
+            PortalView view = obj.GetComponent<PortalView>();
+            if (view == null)
+                view = obj.AddComponent<PortalView>();
+
+            view.linkedPortal = isPortalA && portalB != null ? portalB.GetComponent<Portal>() : !isPortalA && portalA != null ? portalA.GetComponent<Portal>() : null;
+
+            GameObject camObj = new GameObject("PortalCamera");
+            camObj.transform.SetParent(obj.transform);
+            Camera cam = camObj.AddComponent<Camera>();
+            cam.clearFlags = CameraClearFlags.Skybox;
+            cam.fieldOfView = 60f;
+            cam.targetTexture = new RenderTexture(512, 512, 16);
+            view.portalCamera = cam;
+
+            Renderer rend = obj.GetComponentInChildren<Renderer>();
+            view.portalScreenRenderer = rend;
+
+            return view;
         }
 
         private void RegisterPortal(NetworkObject netObj, bool isPortalA)

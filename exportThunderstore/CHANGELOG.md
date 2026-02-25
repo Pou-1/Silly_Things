@@ -1,3 +1,9 @@
+# 1.0.1 Initial release
+
+-   **Added**
+    -   The cardboard of metal gear into the game (allow player to hide from some enemies)
+
+
 # 1.0.0 Initial release
 
 -   **Added**
