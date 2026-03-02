@@ -8,7 +8,6 @@ namespace Silly_Things.codes.MorphingCase
 {
     internal class MorphingCaseUi
     {
-        public MorphingCase? morphingCase;
         public bool IsOpen => isUIOpen;
 
         private bool isUIOpen;
@@ -36,7 +35,7 @@ namespace Silly_Things.codes.MorphingCase
 
         public void OpenUI()
         {
-            morphingCase?.SyncSoundsServerRpc(0);
+            MorphingCase.Instance?.SyncSoundsServerRpc(0);
 
             uiInstance = Object.Instantiate(Plugin.Instance.UI_MorphingCase);
             if (uiInstance == null)
@@ -60,7 +59,7 @@ namespace Silly_Things.codes.MorphingCase
 
         public void ForceCloseUI()
         {
-            morphingCase?.SyncSoundsServerRpc(1);
+            MorphingCase.Instance?.SyncSoundsServerRpc(1);
 
             if (uiInstance != null)
                 Object.Destroy(uiInstance);

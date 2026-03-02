@@ -12,7 +12,6 @@ namespace Silly_Things.codes.MorphingCase
         private int previousSuitId = -1;
 
         public bool HasStoredCosmetics => previousCosmetics != null;
-        public MorphingCase? morphingCase;
 
         public void MorphToPlayer(PlayerControllerB source)
         {

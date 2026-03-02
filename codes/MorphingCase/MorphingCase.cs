@@ -17,13 +17,7 @@ namespace Silly_Things.codes.MorphingCase
         {
             base.OnNetworkSpawn();
             Instance = this;
-            ui.morphingCase = this;
             audio = gameObject.transform.Find("Audio").GetComponent<AudioSource>();
-
-            if (ui.cosmeticsManager != null)
-            {
-                ui.cosmeticsManager.morphingCase = this;
-            }
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
