@@ -12,7 +12,6 @@ namespace Silly_Things.codes.MorphingCase
         private int previousSuitId = -1;
 
         public bool HasStoredCosmetics => previousCosmetics != null;
-        public MorphingCase? morphingCase;
 
         public void MorphToPlayer(PlayerControllerB source)
         {
@@ -68,14 +67,14 @@ namespace Silly_Things.codes.MorphingCase
             target.currentSuitID = source.currentSuitID;
             target.movementAudio.PlayOneShot(StartOfRound.Instance.changeSuitSFX);
 
-            morphingCase?.ChangeSuitServerRpc(target.playerClientId, source.currentSuitID);
+            MorphingCase.Instance?.ChangeSuitServerRpc(target.playerClientId, previousSuitId);
         }
 
         private void RestoreSuit(PlayerControllerB target)
         {
             if (previousSuitId != -1)
             {
-                morphingCase?.ChangeSuitServerRpc(target.playerClientId, previousSuitId);
+                MorphingCase.Instance?.ChangeSuitServerRpc(target.playerClientId, previousSuitId);
             }
         }
 
