@@ -2,6 +2,14 @@
 
 This mod add some new **Items** to the game !
 
+## The morphing Case
+
+Allow the player holding it to disguise as another player while holding it !
+
+## The Cardboard of Metal Gear
+
+Allow the player holding it to hide from mobs that see u !
+
 ## Dependencies 🤫
 
 -   [BepInExPack](https://thunderstore.io/c/lethal-company/p/BepInEx/BepInExPack/)

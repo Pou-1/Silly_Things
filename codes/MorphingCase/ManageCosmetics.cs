@@ -1,4 +1,4 @@
-﻿using GameNetcodeStuff;
+﻿﻿using GameNetcodeStuff;
 using MoreCompany;
 using MoreCompany.Cosmetics;
 using System.Collections.Generic;
@@ -67,7 +67,7 @@ namespace Silly_Things.codes.MorphingCase
             target.currentSuitID = source.currentSuitID;
             target.movementAudio.PlayOneShot(StartOfRound.Instance.changeSuitSFX);
 
-            MorphingCase.Instance?.ChangeSuitServerRpc(target.playerClientId, previousSuitId);
+            MorphingCase.Instance?.ChangeSuitServerRpc(target.playerClientId, source.currentSuitID);
         }
 
         private void RestoreSuit(PlayerControllerB target)

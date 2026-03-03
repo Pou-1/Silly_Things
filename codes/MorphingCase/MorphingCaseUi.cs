@@ -22,7 +22,7 @@ namespace Silly_Things.codes.MorphingCase
         private Transform? contentRight;
         private Transform? playerTemplate;
 
-        public ManageCosmetics? cosmeticsManager;
+        private ManageCosmetics? cosmeticsManager;
 
         private List<PlayerControllerB> overflowPlayers = new List<PlayerControllerB>();
         private int currentPage = 0;
@@ -68,6 +68,7 @@ namespace Silly_Things.codes.MorphingCase
             isUIOpen = false;
 
             EnableCursor(false);
+
         }
 
         private void CacheUIRefs()

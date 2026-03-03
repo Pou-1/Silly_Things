@@ -1,4 +1,4 @@
-﻿using GameNetcodeStuff;
+﻿﻿using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -55,7 +55,7 @@ namespace Silly_Things.codes.MorphingCase
         [ClientRpc]
         public void SyncSoundsClientRpc(int idSound)
         {
-            if(idSound == 0)
+            if (idSound == 0)
                 audio?.PlayOneShot(Plugin.Instance.SoundOpenUI);
             else if (idSound == 1)
                 audio?.PlayOneShot(Plugin.Instance.SoundCloseUI);
