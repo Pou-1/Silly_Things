@@ -63,6 +63,7 @@ namespace Silly_Things.codes.SnakeCardboardBox
         public override void OnDestroy()
         {
             PlayerHiddenByBox = false;
+            Instances.Remove(this);
             base.OnDestroy();
             RemoveBoxServerRpc();
         }

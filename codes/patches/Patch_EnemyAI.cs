@@ -1,6 +1,8 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
+using UnityEngine;
 using System.Linq;
+using Silly_Things.codes.BountyContract;
 
 namespace Silly_Things.codes.patches
 {
@@ -14,7 +16,7 @@ namespace Silly_Things.codes.patches
             if(__result == null)
                 return;
 
-            foreach (var item in SnakeCardboardBox.SnakeCardboardBox.Instances)
+            foreach (SnakeCardboardBox.SnakeCardboardBox item in SnakeCardboardBox.SnakeCardboardBox.Instances)
             {
                 if (item.PlayerHiddenByBox)
                 {
@@ -35,7 +37,7 @@ namespace Silly_Things.codes.patches
             if (__result == null)
                 return;
             
-            foreach (var item in SnakeCardboardBox.SnakeCardboardBox.Instances)
+            foreach (SnakeCardboardBox.SnakeCardboardBox item in SnakeCardboardBox.SnakeCardboardBox.Instances)
             {
                 if (item.PlayerHiddenByBox && __result == item.playerHeldBy)
                 {

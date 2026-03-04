@@ -1,7 +1,7 @@
 {
 	"name": "SillyThings",
 	"version_number": "1.0.2",
-	"website_url": "https://github.com/Pou-1/Lethal_Battle",
+	"website_url": "https://github.com/Pou-1/Silly_Things",
 	"description": "Add some items to the game !",
 	"dependencies": [
 		"BepInEx-BepInExPack-5.4.2100",

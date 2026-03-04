@@ -2,12 +2,14 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using LethalLib.Modules;
+using Silly_Things.codes.BountyContract;
 using Silly_Things.codes.MorphingCase;
 using Silly_Things.codes.SnakeCardboardBox;
 using Silly_Things.Codes.PortalGun;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Silly_Things
 {
@@ -34,7 +36,12 @@ namespace Silly_Things
         public GameObject? BigCardboardBoxPrefab;
         public AudioClip SoundOpenCardboardBox = null!;
         public AudioClip SoundCloseCardboardBox = null!;
-        
+
+        //Bounty Hunt
+        public GameObject? FootprintPrefab;
+        public AudioClip SoundSonar = null!;
+        public GameObject? UI_Bounty;
+
         //Portal Gun
         public GameObject? PortalPrefab;
 
@@ -74,6 +81,7 @@ namespace Silly_Things
 
             LoadAudioSource(bundle);
             LoadMorphingCase(bundle);
+            LoadBountyContract(bundle);
             LoadSnakeCardboardBox(bundle);
             //LoadPortalGun(bundle);
         }
@@ -102,6 +110,25 @@ namespace Silly_Things
             script.itemProperties = morphingCase;
             NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
             Items.RegisterScrap(morphingCase, SillyThingsConfig.MorphingCaseItemRarity.Value, Levels.LevelTypes.All);
+        }
+
+        public void LoadBountyContract(AssetBundle bundle)
+        {
+            FootprintPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/BountyContract/FootPrintPrefab.prefab");
+            SoundSonar = bundle.LoadAsset<AudioClip>("Assets/LethalModding/BountyContract/sonar.ogg");
+            UI_Bounty = bundle.LoadAsset<GameObject>("Assets/LethalModding/BountyContract/UI/UIBounty.prefab");
+
+            string baseJsonPath = Path.Combine(Paths.PluginPath, "Silly_Things/BountyEnemies.json");
+            BountyContract.LoadWeightsFromJson(baseJsonPath);
+
+            Item bountyContract = bundle.LoadAsset<Item>("Assets/LethalModding/BountyContract/BountyContract.asset");
+            BountyContract script = bountyContract.spawnPrefab.AddComponent<BountyContract>();
+            script.name = "Bounty Contract";
+            script.grabbable = true;
+            script.grabbableToEnemies = true;
+            script.itemProperties = bountyContract;
+            NetworkPrefabs.RegisterNetworkPrefab(bountyContract.spawnPrefab);
+            Items.RegisterScrap(bountyContract, SillyThingsConfig.BountyContract.Value, Levels.LevelTypes.All);
         }
 
         public void LoadSnakeCardboardBox(AssetBundle bundle)

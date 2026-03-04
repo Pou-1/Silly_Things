@@ -33,6 +33,22 @@ namespace Silly_Things.codes.MorphingCase
             ui.OpenUI();
         }
 
+        public override void SetControlTipsForItem()
+        {
+            SetControlTips();
+        }
+
+        private void SetControlTips()
+        {
+            string[] allLines = { "Open Morph UI : [LMB]"};
+
+            if (IsOwner)
+            {
+                HUDManager.Instance.ClearControlTips();
+                HUDManager.Instance.ChangeControlTipMultiple(allLines, holdingItem: true, itemProperties);
+            }
+        }
+
         public override void DiscardItem()
         {
             base.DiscardItem();

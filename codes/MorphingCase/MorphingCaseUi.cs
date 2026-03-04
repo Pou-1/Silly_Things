@@ -73,36 +73,35 @@ namespace Silly_Things.codes.MorphingCase
 
         private void CacheUIRefs()
         {
-            closeButton = uiInstance.transform.Find("Panel/Panel/ButtonClose")?.GetComponent<Button>();
-            resetButton = uiInstance.transform.Find("Panel/Panel/ButtonReset")?.GetComponent<Button>();
-            buttonLeft = uiInstance.transform.Find("Panel/ButtonLeft")?.GetComponent<Button>();
-            buttonRight = uiInstance.transform.Find("Panel/ButtonRight")?.GetComponent<Button>();
-
-            content = uiInstance.transform.Find("Panel/Panel/PanelLeft/Viewport/Content");
-            contentRight = uiInstance.transform.Find("Panel/Panel/PanelRight/Viewport/Content");
-            playerTemplate = content.Find("PlayerNames");
-
-            if (closeButton != null)
-                closeButton.onClick.AddListener(ForceCloseUI);
-
-            if (resetButton != null)
+            if (uiInstance != null)
             {
-                resetButton.onClick.AddListener(() =>
+                closeButton = uiInstance.transform.Find("Panel/Panel/ButtonClose")?.GetComponent<Button>();
+                resetButton = uiInstance.transform.Find("Panel/Panel/ButtonReset")?.GetComponent<Button>();
+                buttonLeft = uiInstance.transform.Find("Panel/ButtonLeft")?.GetComponent<Button>();
+                buttonRight = uiInstance.transform.Find("Panel/ButtonRight")?.GetComponent<Button>();
+
+                content = uiInstance.transform.Find("Panel/Panel/PanelLeft/Viewport/Content");
+                contentRight = uiInstance.transform.Find("Panel/Panel/PanelRight/Viewport/Content");
+                playerTemplate = content.Find("PlayerNames");
+
+                if (closeButton != null)
+                    closeButton.onClick.AddListener(ForceCloseUI);
+
+                if (resetButton != null)
                 {
-                    cosmeticsManager.RestorePreviousCosmetics();
+                    resetButton.onClick.AddListener(() =>
+                    {
+                        if (cosmeticsManager != null)
+                            cosmeticsManager.RestorePreviousCosmetics();
+                        resetButton.interactable = false;
+                    });
                     resetButton.interactable = false;
-                });
-                resetButton.interactable = false;
-            }
+                }
 
-            if (buttonLeft != null)
-                buttonLeft.onClick.AddListener(() => ChangePage(-1));
-
-            if (buttonRight != null)
-                buttonRight.onClick.AddListener(() => ChangePage(1));
-
-            if (playerTemplate != null)
+                buttonLeft?.onClick.AddListener(() => ChangePage(-1));
+                buttonRight?.onClick.AddListener(() => ChangePage(1));
                 playerTemplate.gameObject.SetActive(false);
+            }
         }
 
         private void BuildPlayerList()
@@ -138,39 +137,42 @@ namespace Silly_Things.codes.MorphingCase
 
         private void CreatePlayerEntry(PlayerControllerB source, Transform parentContent)
         {
-            GameObject clone = Object.Instantiate(playerTemplate.gameObject, parentContent);
-            clone.SetActive(true);
-
-            TMP_Text name = clone.transform.Find("ButtonPlayer/PlayerName")?.GetComponent<TMP_Text>();
-            if (name != null)
-                name.text = source.playerUsername;
-
-            Button btn = clone.transform.Find("ButtonPlayer")?.GetComponent<Button>();
-            if (btn != null)
+            if (playerTemplate != null)
             {
-                btn.onClick.RemoveAllListeners();
-                btn.onClick.AddListener(() =>
+                GameObject clone = Object.Instantiate(playerTemplate.gameObject, parentContent);
+                clone.SetActive(true);
+
+                TMP_Text? name = clone.transform.Find("ButtonPlayer/PlayerName")?.GetComponent<TMP_Text>();
+                if (name != null)
+                    name.text = source.playerUsername;
+
+                Button? btn = clone.transform.Find("ButtonPlayer")?.GetComponent<Button>();
+                if (btn != null)
                 {
-                    cosmeticsManager.MorphToPlayer(source);
-                    if (resetButton != null)
-                        resetButton.interactable = true;
-                });
-            }
+                    btn.onClick.RemoveAllListeners();
+                    btn.onClick.AddListener(() =>
+                    {
+                        cosmeticsManager.MorphToPlayer(source);
+                        if (resetButton != null)
+                            resetButton.interactable = true;
+                    });
+                }
 
-            RawImage avatar = clone.GetComponentInChildren<RawImage>(true);
+                RawImage avatar = clone.GetComponentInChildren<RawImage>(true);
 
-            bool isMultiplayer = !GameNetworkManager.Instance.disableSteam;
+                bool isMultiplayer = !GameNetworkManager.Instance.disableSteam;
 
-            if (avatar != null)
-            {
-                if (isMultiplayer)
-                    HUDManager.FillImageWithSteamProfile(avatar, source.playerSteamId);
+                if (avatar != null)
+                {
+                    if (isMultiplayer)
+                        HUDManager.FillImageWithSteamProfile(avatar, source.playerSteamId);
+                    else
+                        avatar.gameObject.SetActive(false);
+                }
                 else
-                    avatar.gameObject.SetActive(false);
-            }
-            else
-            {
-                Plugin.Logger.LogError("avatar fail to clone");
+                {
+                    Plugin.Logger.LogError("avatar fail to clone");
+                }
             }
         }
 
@@ -183,37 +185,39 @@ namespace Silly_Things.codes.MorphingCase
 
         private void RefreshPage()
         {
-            foreach (Transform child in content)
-                if (child != playerTemplate)
-                    Object.Destroy(child.gameObject);
-
-            foreach (Transform child in contentRight)
-                if (child != playerTemplate)
-                    Object.Destroy(child.gameObject);
-
-            int startIndex = currentPage * playersPerPage;
-            int endIndex = Mathf.Min(startIndex + playersPerPage, overflowPlayers.Count);
-
-            for (int i = startIndex; i < endIndex; i++)
+            if (content != null && contentRight != null)
             {
-                PlayerControllerB player = overflowPlayers[i];
-                Transform target = (i - startIndex) < 3 ? content : contentRight;
-                CreatePlayerEntry(player, target);
-            }
+                foreach (Transform child in content)
+                    if (child != playerTemplate)
+                        Object.Destroy(child.gameObject);
 
-            int maxPage = Mathf.Max(0, Mathf.CeilToInt((float)overflowPlayers.Count / playersPerPage) - 1);
-            bool hasMultiplePages = maxPage > 0;
+                foreach (Transform child in contentRight)
+                    if (child != playerTemplate)
+                        Object.Destroy(child.gameObject);
+                int startIndex = currentPage * playersPerPage;
+                int endIndex = Mathf.Min(startIndex + playersPerPage, overflowPlayers.Count);
 
-            if (buttonLeft != null)
-            {
-                buttonLeft.gameObject.SetActive(hasMultiplePages);
-                buttonLeft.interactable = hasMultiplePages && currentPage > 0;
-            }
+                for (int i = startIndex; i < endIndex; i++)
+                {
+                    PlayerControllerB player = overflowPlayers[i];
+                    Transform target = (i - startIndex) < 3 ? content : contentRight;
+                    CreatePlayerEntry(player, target);
+                }
 
-            if (buttonRight != null)
-            {
-                buttonRight.gameObject.SetActive(hasMultiplePages);
-                buttonRight.interactable = hasMultiplePages && currentPage < maxPage;
+                int maxPage = Mathf.Max(0, Mathf.CeilToInt((float)overflowPlayers.Count / playersPerPage) - 1);
+                bool hasMultiplePages = maxPage > 0;
+
+                if (buttonLeft != null)
+                {
+                    buttonLeft.gameObject.SetActive(hasMultiplePages);
+                    buttonLeft.interactable = hasMultiplePages && currentPage > 0;
+                }
+
+                if (buttonRight != null)
+                {
+                    buttonRight.gameObject.SetActive(hasMultiplePages);
+                    buttonRight.interactable = hasMultiplePages && currentPage < maxPage;
+                }
             }
         }
 

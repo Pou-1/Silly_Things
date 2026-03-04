@@ -8,7 +8,7 @@ namespace Silly_Things.Codes.PortalGun
     public class Portal : NetworkBehaviour
     {
         private ulong linkedPortalId;
-        private Renderer portalRenderer;
+        private Renderer? portalRenderer;
 
         private HashSet<PlayerControllerB> teleportingPlayers = new HashSet<PlayerControllerB>();
 
@@ -21,9 +21,7 @@ namespace Silly_Things.Codes.PortalGun
             portalRenderer = GetComponentInChildren<Renderer>();
             if (portalRenderer != null)
             {
-                portalRenderer.material.color = isPortalA
-                    ? new Color(0.2f, 0.4f, 1f)
-                    : new Color(1f, 0.5f, 0f);
+                portalRenderer.material.color = isPortalA ? new Color(0.2f, 0.4f, 1f) : new Color(1f, 0.5f, 0f);
             }
         }
 

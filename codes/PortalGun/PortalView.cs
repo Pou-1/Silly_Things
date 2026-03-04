@@ -5,10 +5,10 @@ namespace Silly_Things.Codes.PortalGun
 {
     public class PortalView : NetworkBehaviour
     {
-        public Camera portalCamera;
-        public Renderer portalScreenRenderer;
-        public Portal linkedPortal;
-        public Transform playerCameraTransform;
+        public Camera? portalCamera;
+        public Renderer? portalScreenRenderer;
+        public Portal? linkedPortal;
+        public Transform? playerCameraTransform;
 
         public void LateUpdate()
         {

@@ -6,10 +6,10 @@ namespace Silly_Things.Codes.PortalGun
 {
     public class PortalGun : PhysicsProp
     {
-        private AudioSource audio;
+        private AudioSource? audio;
 
-        private static NetworkObject portalA;
-        private static NetworkObject portalB;
+        private static NetworkObject? portalA;
+        private static NetworkObject? portalB;
         private bool shootPortalA = true;
 
         public override void OnNetworkSpawn()
@@ -101,7 +101,7 @@ namespace Silly_Things.Codes.PortalGun
             SyncSoundsClientRpc(0);
         }
 
-        private PlayerControllerB GetPlayerFromClient(ulong clientId)
+        private PlayerControllerB? GetPlayerFromClient(ulong clientId)
         {
             foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
             {
