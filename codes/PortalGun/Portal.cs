@@ -8,7 +8,6 @@ namespace Silly_Things.Codes.PortalGun
     public class Portal : NetworkBehaviour
     {
         private ulong linkedPortalId;
-        private Renderer? portalRenderer;
 
         private HashSet<PlayerControllerB> teleportingPlayers = new HashSet<PlayerControllerB>();
 
@@ -18,11 +17,6 @@ namespace Silly_Things.Codes.PortalGun
         public void Setup(bool portalType)
         {
             isPortalA = portalType;
-            portalRenderer = GetComponentInChildren<Renderer>();
-            if (portalRenderer != null)
-            {
-                portalRenderer.material.color = isPortalA ? new Color(0.2f, 0.4f, 1f) : new Color(1f, 0.5f, 0f);
-            }
         }
 
         public void SetLinkedPortal(ulong id)
@@ -39,6 +33,17 @@ namespace Silly_Things.Codes.PortalGun
             if (player == null || teleportingPlayers.Contains(player))
                 return;
 
+            if (teleportTimers.TryGetValue(player, out float time))
+            {
+                if (Time.time < time)
+                    return;
+            }
+
+            Vector3 dirToPlayer = (player.transform.position - transform.position).normalized;
+
+            if (Vector3.Dot(transform.forward, dirToPlayer) > 0f)
+                return;
+
             if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(linkedPortalId, out NetworkObject targetObj))
                 return;
 
@@ -46,12 +51,21 @@ namespace Silly_Things.Codes.PortalGun
             if (targetPortal == null)
                 return;
 
+            Vector3 localPos = transform.InverseTransformPoint(player.transform.position);
+
+            Vector3 newWorldPos = targetPortal.transform.TransformPoint(localPos);
+
+            newWorldPos += targetPortal.transform.forward * 1.0f;
+            newWorldPos -= new Vector3(-1f, -1f, 0f);
+
             Vector3 localVel = transform.InverseTransformDirection(player.thisController.velocity);
             Vector3 newVel = targetPortal.transform.TransformDirection(localVel);
 
-            Vector3 exitPos = targetPortal.transform.position + targetPortal.transform.forward * 1.5f;
+            Quaternion relativeRot = Quaternion.Inverse(transform.rotation) * player.transform.rotation;
+            Quaternion newRot = targetPortal.transform.rotation * relativeRot;
 
-            player.TeleportPlayer(exitPos);
+            player.TeleportPlayer(newWorldPos);
+            player.transform.rotation = newRot;
             player.externalForces = newVel;
 
             targetPortal.AddTeleportingPlayer(player);
@@ -61,7 +75,7 @@ namespace Silly_Things.Codes.PortalGun
         public void AddTeleportingPlayer(PlayerControllerB player)
         {
             teleportingPlayers.Add(player);
-            teleportTimers[player] = Time.time + 0.2f;
+            teleportTimers[player] = Time.time + 0.5f;
         }
 
         public void Update()

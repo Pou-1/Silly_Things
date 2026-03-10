@@ -35,8 +35,10 @@ namespace Silly_Things.Codes.PortalGun
 
         public override void EquipItem()
         {
+            base.EquipItem();
             SetControlTips();
             EnableItemMeshes(enable: true);
+
             playerHeldBy.equippedUsableItemQE = true;
             isPocketed = false;
             if (!hasBeenHeld)
@@ -84,14 +86,14 @@ namespace Silly_Things.Codes.PortalGun
             if (!IsServer)
                 return;
 
-            PlayerControllerB player = GetPlayerFromClient(rpcParams.Receive.SenderClientId);
+            PlayerControllerB? player = GetPlayerFromClient(rpcParams.Receive.SenderClientId);
             if (player == null)
                 return;
 
             if (!TryGetHitPoint(player, out RaycastHit hit))
                 return;
 
-            NetworkObject portalNetObj = SpawnPortal(hit, isPortalA);
+            NetworkObject? portalNetObj = SpawnPortal(isPortalA);
             if (portalNetObj == null)
                 return;
 
@@ -130,52 +132,46 @@ namespace Silly_Things.Codes.PortalGun
 
             return Physics.Raycast(ray, out hit, 50f);
         }
-        private NetworkObject SpawnPortal(RaycastHit hit, bool isPortalA)
+
+        private NetworkObject? SpawnPortal(bool isPortalA)
         {
-            if (Plugin.Instance.PortalPrefab == null)
+            GameObject? prefab = isPortalA ? Plugin.Instance.PortalPrefabA : Plugin.Instance.PortalPrefabB;
+            if (prefab == null)
                 return null;
 
-            Quaternion rotation = CalculatePortalRotation(hit.normal);
-            Vector3 spawnPos = hit.point + hit.normal * 0.01f;
+            Transform camTransform = playerHeldBy.gameplayCamera.transform;
 
-            GameObject obj = CreatePortalObject(spawnPos, rotation);
+            Vector3 spawnPos = camTransform.position + camTransform.forward * 2.0f - Vector3.up * 0.3f;
+
+            Quaternion rotation = Quaternion.LookRotation(camTransform.forward, Vector3.up);
+
+            GameObject obj = CreatePortalObject(prefab, spawnPos, rotation);
             if (obj == null)
                 return null;
 
             Portal portal = SetupPortalComponent(obj, isPortalA);
             PortalView view = SetupPortalView(obj, portal, isPortalA);
-            view.playerCameraTransform = playerHeldBy.gameplayCamera.transform;
-
-            Renderer rend = obj.GetComponentInChildren<Renderer>();
-            if (rend == null)
-                Plugin.Logger.LogError("Portal prefab missing a child Renderer for the portal screen!");
-
-            view.portalScreenRenderer = rend;
-
+            view.playerCameraTransform = camTransform;
+            view.portalScreenRenderer = obj.GetComponentInChildren<Renderer>();
+            view.playerCamMask = playerHeldBy.gameplayCamera.cullingMask;
+            view.SetupPortalCamera();
 
             return obj.GetComponent<NetworkObject>();
         }
 
         private Quaternion CalculatePortalRotation(Vector3 normal)
         {
-            if (Vector3.Dot(normal, Vector3.up) > 0.9f)
-                return Quaternion.Euler(0, playerHeldBy.gameplayCamera.transform.eulerAngles.y, 0);
-            else if (Vector3.Dot(normal, Vector3.down) > 0.9f)
-                return Quaternion.Euler(180, playerHeldBy.gameplayCamera.transform.eulerAngles.y, 0);
-            else
-            {
-                Vector3 forward = Vector3.Cross(Vector3.up, -normal);
-                return Quaternion.LookRotation(forward, Vector3.up);
-            }
+            return Quaternion.LookRotation(-normal, Vector3.up);
         }
 
-        private GameObject CreatePortalObject(Vector3 position, Quaternion rotation)
+        private GameObject CreatePortalObject(GameObject prefab, Vector3 position, Quaternion rotation)
         {
-            GameObject obj = Instantiate(Plugin.Instance.PortalPrefab, position, rotation);
+            GameObject obj = Instantiate(prefab, position, rotation);
 
             NetworkObject netObj = obj.GetComponent<NetworkObject>();
             if (netObj == null)
                 netObj = obj.AddComponent<NetworkObject>();
+
             netObj.Spawn();
 
             return obj;

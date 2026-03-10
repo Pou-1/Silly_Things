@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65d3fcb39dd67306e9bb17a603308070, type: 3}
+  m_Name: RadMech
+  m_EditorClassIdentifier:
+  enemyName: RadMech
+  probabilityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.23866479
+      inSlope: 0.11978525
+      outSlope: 0.11978525
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.12326656
+    - serializedVersion: 3
+      time: 1
+      value: 1.1836548
+      inSlope: 0.060586426
+      outSlope: 0.060586426
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.080123246
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spawningDisabled: 0
+  spawnFromWeeds: 0
+  numberSpawnedFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  useNumberSpawnedFalloff: 0
+  spawnInGroupsOf: 0
+  requireNestObjectsToSpawn: 0
+  enemyPrefab: {fileID: 1553484450833196, guid: 35a80c4a4e9c4ac4dad0abbc10f3b246, type: 2}
+  PowerLevel: 3
+  MaxCount: 20
+  numberSpawned: 2
+  nestsSpawned: 2
+  isOutsideEnemy: 1
+  isDaytimeEnemy: 0
+  increasedChanceInterior: -1
+  normalizedTimeInDayToLeave: 1
+  stunTimeMultiplier: 1.2
+  doorSpeedMultiplier: 1
+  stunGameDifficultyMultiplier: 1.4
+  canBeStunned: 1
+  canDie: 0
+  canBeDestroyed: 1
+  destroyOnDeath: 0
+  canSeeThroughFog: 0
+  pushPlayerForce: 0.16
+  pushPlayerDistance: 1.26
+  SizeLimit: 1
+  EnemySize: 1
+  timeToPlayAudio: 15
+  loudnessMultiplier: 1
+  overrideVentSFX: {fileID: 0}
+  nestSpawnPrefab: {fileID: 1135709185569191, guid: eb9a8c857015d3e45a97d0bcecdd7fed, type: 2}
+  nestSpawnPrefabWidth: 1
+  nestDistanceFromShip: -1
+  useMinEnemyThresholdForNest: 0
+  minEnemiesToSpawnNest: 0
+  hitBodySFX: {fileID: 0}
+  hitEnemyVoiceSFX: {fileID: 0}
+  deathSFX: {fileID: 0}
+  stunSFX: {fileID: 0}
+  miscAnimations: []
+  audioClips:
+  - {fileID: 8300000, guid: 1f3d62d617c269a418a6e7563174be1b, type: 3}
+  - {fileID: 8300000, guid: 7bcf57041549c344dbebed7f4ed2bd90, type: 3}
+  - {fileID: 8300000, guid: 080e5157412de2a4b850a38802ae5906, type: 3}
+  - {fileID: 8300000, guid: 22dec3b6f8685824f9d460b082204a94, type: 3}
+  - {fileID: 8300000, guid: c95d5068c44540a49a43bb07b3615726, type: 3}
+  - {fileID: 8300000, guid: 2d81e80626eafe641be42d5e8f0b11e3, type: 3}
+  - {fileID: 8300000, guid: 2c0ee4dcd41cc3846b01957c54689073, type: 3}
+  - {fileID: 8300000, guid: 7572cc5e48d8e9c4884fc86e6fc151bf, type: 3}
+  - {fileID: 8300000, guid: de4b6283ef79218409b1dbc6036bad64, type: 3}
+  - {fileID: 8300000, guid: ba61498479aedcb43aa6ae3be358d18c, type: 3}
+  - {fileID: 8300000, guid: 1689851f9c53b044c95aa806c3a6802e, type: 3}

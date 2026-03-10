@@ -10,7 +10,6 @@ namespace Silly_Things.codes.SnakeCardboardBox
         private readonly SnakeCardboardBoxUi ui = new SnakeCardboardBoxUi();
         public static List<SnakeCardboardBox> Instances { get; set; } = new List<SnakeCardboardBox>();
         public bool PlayerHiddenByBox = false;
-        private ulong spawnedBoxId;
         private AudioSource? audio;
         private GameObject? boxObject;
 

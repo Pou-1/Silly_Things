@@ -222,7 +222,7 @@ namespace Silly_Things.codes.BountyContract
             generatingPath = false;
         }
 
-        public IEnumerator SyncItem(NetworkObjectReference reference, int intValue, bool isLast = false)
+        public IEnumerator SyncItem(NetworkObjectReference reference, int intValue)
         {
             EnableItemMeshes(enable: false);
             NetworkObject? itemNetObject = null;
@@ -244,15 +244,6 @@ namespace Silly_Things.codes.BountyContract
 
             if (component.itemProperties.isScrap)
                 component.SetScrapValue(intValue);
-
-            /*if (isLast && IsOwner)
-            {
-                if (IsServer)
-                {
-                    yield return new WaitForSeconds(0.5f);
-                }
-                playerHeldBy.DestroyItemInSlotAndSync(playerHeldBy.currentItemSlot);
-            }*/
         }
 
         // _____________TARGET_____________ \\
@@ -302,17 +293,7 @@ namespace Silly_Things.codes.BountyContract
                 isPlayerTarget = true;
                 targetAssigned = true;
 
-                if (IsOwner)
-                {
-                    if (IsServer)
-                    {
-                        CreateRewardServer();
-                    }
-                    else
-                    {
-                        CreateRewardServerRpc();
-                    }
-                }
+                CreateRewardServerRpc(new NetworkObjectReference(targetPlayer.gameObject), true);
                 return;
             }
 
@@ -328,38 +309,30 @@ namespace Silly_Things.codes.BountyContract
 
                 targetAssigned = true;
 
-                if (IsOwner)
-                {
-                    if (IsServer)
-                    {
-                        CreateRewardServer();
-                    }
-                    else
-                    {
-                        CreateRewardServerRpc();
-                    }
-                }
+                CreateRewardServerRpc(new NetworkObjectReference(targetEnemy.gameObject), false);
             }
         }
 
         private void OnTargetCompleted()
         {
-            //Plugin.Logger.LogInfo("[Bounty] COMPLETED");
             HUDManager.Instance.DisplayTip("Bounty complete", $"Reward: ${reward}", true);
-
             bountyCompletePanel?.SetActive(true);
-
             SpawnRewardsServerRpc();
         }
 
         // _____________REWARDS_____________ \\
-        public void CreateRewardServer()
+        public void CreateRewardServer(NetworkObjectReference targetRef, bool isPlayer)
         {
             if (!IsServer)
                 return;
 
             itemsInRewards.Clear();
             rewardsPrice.Clear();
+
+            if (isPlayer)
+                targetPlayer = ((GameObject)targetRef).GetComponent<PlayerControllerB>();
+            else
+                targetEnemy = ((GameObject)targetRef).GetComponent<EnemyAI>();
 
             int itemCount = 3;
             int rewardTotal = 0;
@@ -375,9 +348,7 @@ namespace Silly_Things.codes.BountyContract
                 rewardTotal = Plugin.SillyThingsConfig.BountyRewardForKillingPlayer.Value;
             }
 
-            List<int> rarityWeights = RoundManager.Instance.currentLevel.spawnableScrap
-                .Select(s => s.spawnableItem.itemName == "Bounty Contract" ? 0 : s.rarity)
-                .ToList();
+            List<int> rarityWeights = RoundManager.Instance.currentLevel.spawnableScrap.Select(s => s.spawnableItem.itemName == "Bounty Contract" ? 0 : s.rarity).ToList();
 
             System.Random rng = new System.Random(UnityEngine.Random.Range(1, 1000000));
 
@@ -387,10 +358,11 @@ namespace Silly_Things.codes.BountyContract
                 itemsInRewards.Add(RoundManager.Instance.currentLevel.spawnableScrap[index].spawnableItem);
             }
 
-            Plugin.Logger.LogError("CreateRewardServer " + rewardTotal);
-            Plugin.Logger.LogError(itemCount);
+            Plugin.Logger.LogError("CreateRewardServer ");
+            Plugin.Logger.LogError("rewardTotal " + rewardTotal);
+            Plugin.Logger.LogError("items " + itemCount);
             GenerateRewardSplit(rewardTotal, itemCount);
-            SyncRewardsClientRpc(rewardTotal, rewardsPrice.ToArray());
+            SyncRewardsClientRpc(rewardTotal, rewardsPrice.ToArray(), targetRef, isPlayer);
         }
 
         public void GenerateRewardSplit(int rewardTotal, int itemCount)
@@ -412,26 +384,11 @@ namespace Silly_Things.codes.BountyContract
             rewardsPrice.Add(remaining);
         }
 
-        public static NetworkReference SpawnScrap(Item scrap, Vector3 position, int price)
-        {
-            var parent = RoundManager.Instance.spawnedScrapContainer == null ? StartOfRound.Instance.elevatorTransform : RoundManager.Instance.spawnedScrapContainer;
-            GameObject gameObject = Instantiate(scrap.spawnPrefab, position + Vector3.up * 0.25f, Quaternion.identity, RoundManager.Instance.spawnedScrapContainer);
-            GrabbableObject component = gameObject.GetComponent<GrabbableObject>();
-            component.transform.rotation = Quaternion.Euler(component.itemProperties.restingRotation);
-            component.scrapValue = price;
-            component.fallTime = 1f;
-            component.hasHitGround = true;
-            component.reachedFloorTarget = true;
-            //component.scrapValue = (int)(UnityEngine.Random.Range(scrap.minValue, scrap.maxValue) * RoundManager.Instance.scrapValueMultiplier);
-            component.NetworkObject.Spawn(true);
-            return new NetworkReference(gameObject.GetComponent<NetworkObject>(), component.scrapValue);
-        }
-
         // _____________REWARDS RPCS ALEDDDDDDD :c_____________ \\
         [ServerRpc(RequireOwnership = false)]
-        public void CreateRewardServerRpc()
+        public void CreateRewardServerRpc(NetworkObjectReference targetRef, bool isPlayer)
         {
-            CreateRewardServer();
+            CreateRewardServer(targetRef, isPlayer);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -444,23 +401,32 @@ namespace Silly_Things.codes.BountyContract
 
             for (int i = 0; i < itemsInRewards.Count; i++)
             {
-                var reference = SpawnScrap(itemsInRewards[i], positionReward + new Vector3(UnityEngine.Random.Range(-1f, 1f), 0.4f, UnityEngine.Random.Range(-1f, 1f)), rewardsPrice[i]);
+                var reference = Helper.Helper.SpawnScrap(itemsInRewards[i], positionReward + new Vector3(UnityEngine.Random.Range(-1f, 1f), 0.4f, UnityEngine.Random.Range(-1f, 1f)), rewardsPrice[i]);
 
-                SpawnRewardsClientRpc(reference.netObjectRef, reference.value, i == itemsInRewards.Count - 1);
+                SpawnRewardsClientRpc(reference.netObjectRef, reference.value);
             }
         }
 
         [ClientRpc]
-        public void SpawnRewardsClientRpc(NetworkObjectReference reference, int intValue, bool isLast)
+        public void SpawnRewardsClientRpc(NetworkObjectReference reference, int intValue)
         {
-            StartCoroutine(SyncItem(reference, intValue, isLast));
+            StartCoroutine(SyncItem(reference, intValue));
         }
 
         [ClientRpc]
-        public void SyncRewardsClientRpc(int rewardTotal, int[] prices)
+        public void SyncRewardsClientRpc(int rewardTotal, int[] prices, NetworkObjectReference targetRef, bool isPlayer)
         {
             Plugin.Logger.LogError("SyncRewardsClientRpc" + rewardTotal);
             Plugin.Logger.LogError(prices);
+
+            if (!IsServer)
+            {
+                if (isPlayer)
+                    targetPlayer = ((GameObject)targetRef).GetComponent<PlayerControllerB>();
+                else
+                    targetEnemy = ((GameObject)targetRef).GetComponent<EnemyAI>();
+            }
+
             reward = rewardTotal;
             rewardsPrice = prices.ToList();
         }
@@ -487,7 +453,7 @@ namespace Silly_Things.codes.BountyContract
         // _____________PATH_____________ \\
         public void ShowPathToTarget()
         {
-            if (!IsOwner || generatingPath || footprintQueue.Count > 0)
+            if (!IsOwner || generatingPath || footprintQueue.Count > 0 || playerHeldBy == null)
                 return;
 
             if (Time.time < nextPathTime)
@@ -518,11 +484,7 @@ namespace Silly_Things.codes.BountyContract
                 Quaternion.LookRotation(direction) *
                 Quaternion.Euler(0f, rotNoise, 0f);
 
-            GameObject footprint = Instantiate(
-                footprintPrefab,
-                position,
-                rotation
-            );
+            GameObject footprint = Instantiate(footprintPrefab, position, rotation);
 
             foreach (var col in footprint.GetComponentsInChildren<Collider>())
                 col.enabled = false;
@@ -537,11 +499,10 @@ namespace Silly_Things.codes.BountyContract
 
         // _____________PATH RPCS_____________ \\
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void RequestPathServerRpc(Vector3 start, Vector3 end)
         {
             Queue<Vector3> path = BountyPathSystem.GeneratePathPoints(start, end, 1.5f);
-
             SpawnPathClientRpc(path.ToArray());
         }
 

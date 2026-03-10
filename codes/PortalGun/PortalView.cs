@@ -9,6 +9,7 @@ namespace Silly_Things.Codes.PortalGun
         public Renderer? portalScreenRenderer;
         public Portal? linkedPortal;
         public Transform? playerCameraTransform;
+        public int playerCamMask;
 
         public void LateUpdate()
         {
@@ -44,6 +45,25 @@ namespace Silly_Things.Codes.PortalGun
 
             if (portalCamera.targetTexture != null && portalScreenRenderer.material != null)
                 portalScreenRenderer.material.mainTexture = portalCamera.targetTexture;
+            portalCamera.cullingMask = 591075327;
+        }
+
+        public void SetupPortalCamera()
+        {
+            if (playerCameraTransform == null || portalCamera == null)
+                return;
+
+            int portalLayer = LayerMask.NameToLayer("Portal");
+
+            portalCamera.nearClipPlane = 0.01f;
+            portalCamera.cullingMask = 591075327;
+            portalCamera.farClipPlane = 100f;
+            portalCamera.clearFlags = CameraClearFlags.SolidColor;
+            portalCamera.backgroundColor = Color.black;
+            /*if (portalCamera != null && playerCameraTransform != null)
+            {
+                portalCamera.cullingMask = playerCamMask;
+            }*/
         }
     }
 }

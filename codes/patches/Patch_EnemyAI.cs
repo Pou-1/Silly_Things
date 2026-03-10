@@ -27,7 +27,7 @@ namespace Silly_Things.codes.patches
                 }
             }
 
-            //Plugin.Logger.LogInfo("LOS BLOCKED");
+            Plugin.Logger.LogInfo("LOS BLOCKED");
         }
 
         [HarmonyPostfix]
@@ -42,7 +42,7 @@ namespace Silly_Things.codes.patches
                 if (item.PlayerHiddenByBox && __result == item.playerHeldBy)
                 {
                     __result = null;
-                    //Plugin.Logger.LogInfo("LOS one player BLOCKED");
+                    Plugin.Logger.LogInfo("LOS one player BLOCKED");
                     return;
                 }
             }
@@ -60,7 +60,7 @@ namespace Silly_Things.codes.patches
                 if (item.PlayerHiddenByBox && __result == item.playerHeldBy)
                 {
                     __result = null;
-                    //Plugin.Logger.LogInfo("CheckLineOfSightForClosestPlayer BLOCKED");
+                    Plugin.Logger.LogInfo("CheckLineOfSightForClosestPlayer BLOCKED");
                     return;
                 }
             }

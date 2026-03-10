@@ -2,6 +2,11 @@
 
 This mod add some new **Items** to the game !
 
+## The Camera
+
+Allow you to capture the best moments of your game !
+Take a picture of a mob to get more value.
+
 ## The shapeshift Case
 
 ![LethalCompany-2026-03-031-30-35PM-ezgif com-speed](https://github.com/user-attachments/assets/213f00af-ea9f-44d7-8324-ccdc5f10b90a)
@@ -9,7 +14,7 @@ This mod add some new **Items** to the game !
 
 Allow the player holding it to disguise as another player while holding it !
 
-## The Cardboard of Metal Gear
+## The Cardboard of Metal Gear (NOT AVAILABLE, some bugs so i will fix it)
 
 ![20260303134613_1](https://github.com/user-attachments/assets/8205c75c-08e6-4ed1-b1b4-65e39fb46920)
 ![20260303134613_1](https://github.com/user-attachments/assets/00e782ed-5ea5-440c-bb21-16350daf1c21)

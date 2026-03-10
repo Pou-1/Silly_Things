@@ -152,7 +152,8 @@ namespace Silly_Things.codes.MorphingCase
                     btn.onClick.RemoveAllListeners();
                     btn.onClick.AddListener(() =>
                     {
-                        cosmeticsManager.MorphToPlayer(source);
+                        cosmeticsManager?.MorphToPlayer(source);
+
                         if (resetButton != null)
                             resetButton.interactable = true;
                     });

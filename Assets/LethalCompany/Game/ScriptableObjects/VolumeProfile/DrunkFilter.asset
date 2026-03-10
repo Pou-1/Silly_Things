@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: DrunkFilter
+  m_EditorClassIdentifier:
+  components:
+  - {fileID: 11400000, guid: 1e859b55e3d87f54086bfbc1d0dadfc3, type: 2}
+  - {fileID: 11400000, guid: 92143a3b84a171b44bec822f6d470b26, type: 2}
+  - {fileID: 11400000, guid: 7e664f4ab81d0db4c9f9ffab673647da, type: 2}
+  - {fileID: 11400000, guid: 4d75b9d8c5588cd488eb27cfea368e1d, type: 2}
+  - {fileID: 11400000, guid: f58c55efed3f3fa4c818f1dcc14b9f35, type: 2}
+  - {fileID: 11400000, guid: 2b62372dae1b4544492ad9f0f74b18fd, type: 2}
+  - {fileID: 11400000, guid: 4ce010fb3697be7478f24f0971e4e4df, type: 2}
+  - {fileID: 11400000, guid: 1162c95b697eece49b141656de660276, type: 2}
+  - {fileID: 11400000, guid: c89ed238f43847f41b632d85cea3ecda, type: 2}

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: WakeUpVolume
+  m_EditorClassIdentifier:
+  components:
+  - {fileID: 11400000, guid: 15d7f1272611f9547a145e170a5a476d, type: 2}
+  - {fileID: 11400000, guid: 800c46cd1bb0b9441b4d1d562928835c, type: 2}
+  - {fileID: 11400000, guid: a1360937ca514f44f833db2e5bbee8a5, type: 2}
+  - {fileID: 11400000, guid: 39f793c721929764db95ae441beaa487, type: 2}
+  - {fileID: 11400000, guid: 397671e69defb9f41871dac5a4437478, type: 2}
+  - {fileID: 11400000, guid: 9e440565e466d434688c199294c2877e, type: 2}
+  - {fileID: 11400000, guid: e07b6a9a4883dee4688cab06321cbe3c, type: 2}
+  - {fileID: 11400000, guid: ef209198dc245cd4e90ac131575d6006, type: 2}
+  - {fileID: 11400000, guid: 8009b104dce79df4ca569ccdf68ee79e, type: 2}
+  - {fileID: 11400000, guid: 7960e5c3cf2fb474ab4b4377452667be, type: 2}
+  - {fileID: 11400000, guid: 9108c1c279d58ea4195aca948523ef92, type: 2}
+  - {fileID: 11400000, guid: 14d96ab9c47d3da43a882186191c04a5, type: 2}
+  - {fileID: 11400000, guid: 54e94e10d3aab5c47b1235e33f16d9ca, type: 2}

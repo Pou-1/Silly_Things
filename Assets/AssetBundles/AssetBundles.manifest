@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 3774564360
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: sillythings
+      Dependencies: {}
+    Info_1:
+      Name: portaltest
+      Dependencies: {}

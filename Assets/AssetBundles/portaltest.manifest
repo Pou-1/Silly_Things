@@ -1,0 +1,44 @@
+ManifestFileVersion: 0
+CRC: 2225509687
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: aa6fdb8954a8862af4a4897e8a51c470
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: b8b47ca745b03efcc5852ac90e1a2b94
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: aa6fdb8954a8862af4a4897e8a51c470
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: d80c73be3fe0d35469084ced2f981279, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ab881504e307bbb40a3293bc7b62f3e7, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Test/PortalPairTest.prefab
+Dependencies: []

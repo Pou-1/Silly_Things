@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: RadarCameraVolume 1
+  m_EditorClassIdentifier:
+  components:
+  - {fileID: 11400000, guid: 84fd6fbfc115ce24aaa9f2185fe660c8, type: 2}
+  - {fileID: 11400000, guid: 59813010290b1c04998711b297076fc8, type: 2}
+  - {fileID: 11400000, guid: 2906e5486b0e004498e5125180289742, type: 2}
+  - {fileID: 11400000, guid: 75155898170130147b734090cc8fb3e4, type: 2}
+  - {fileID: 11400000, guid: 621c832017ff8d348a00353006fcfbe3, type: 2}
+  - {fileID: 11400000, guid: 357754e51320f8c4fbd9b02ed875fbdf, type: 2}
+  - {fileID: 11400000, guid: 10b689b3257c83040bc8d32297d70f94, type: 2}
+  - {fileID: 11400000, guid: c18a428417589a641bfca32b40958f46, type: 2}
+  - {fileID: 11400000, guid: afa8b3b82aaab0649a48d0062d20caf1, type: 2}
+  - {fileID: 11400000, guid: 041701f894faa034dac5a5e61193adb7, type: 2}
+  - {fileID: 11400000, guid: 8bc5fce98c3c02d499c93f31bf0c9b50, type: 2}
+  - {fileID: 11400000, guid: 6b3542715a429d14680a2abcf0f74198, type: 2}

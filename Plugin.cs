@@ -3,10 +3,16 @@ using BepInEx.Logging;
 using HarmonyLib;
 using LethalLib.Modules;
 using Silly_Things.codes.BountyContract;
+using Silly_Things.codes.CameraItem;
+using Silly_Things.codes.Helper;
 using Silly_Things.codes.MorphingCase;
 using Silly_Things.codes.SnakeCardboardBox;
+using Silly_Things.Codes.CameraItem;
 using Silly_Things.Codes.PortalGun;
+using Silly_Things.Codes.SailorMoonStick;
+using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -24,32 +30,46 @@ namespace Silly_Things
         internal static new ManualLogSource Logger { get; private set; } = null!;
         internal static Config SillyThingsConfig { get; private set; } = null!;
         public readonly Harmony harmony = new Harmony(GUID);
+        public static bool DebugMode;
 
-        //Morphing Case
+        // _____________MORPHING CASE_____________ \\
         public GameObject? UI_MorphingCase;
         internal ManageCosmetics CosmeticsManager { get; private set; } = null!;
         public AudioClip SoundOpenUI = null!;
         public AudioClip SoundCloseUI = null!;
 
-        //Snake CardBoard
+        // _____________SNAKE CARDBOARD BOX_____________ \\
         public GameObject? UI_SnakeCardboardBox;
         public GameObject? BigCardboardBoxPrefab;
         public AudioClip SoundOpenCardboardBox = null!;
         public AudioClip SoundCloseCardboardBox = null!;
 
-        //Bounty Hunt
+        // _____________BOUNTY HUNT_____________ \\
         public GameObject? FootprintPrefab;
         public AudioClip SoundSonar = null!;
         public GameObject? UI_Bounty;
 
-        //Portal Gun
-        public GameObject? PortalPrefab;
+        // _____________PORTAL GUN_____________ \\
+        public GameObject? PortalPrefabA;
+        public GameObject? PortalPrefabB;
+
+        // _____________CAMERA_____________ \\
+        public AudioClip SoundShutter = null!;
+        public AudioClip SoundGear = null!;
+        public AudioClip SoundSucess = null!;
+        public GameObject? PhotoItemPrefab;
+        public GameObject? CameraVariantGold;
+        public GameObject? CameraVariantBlue;
+        public GameObject? CameraVariantBlack;
+        public Shader? photoShader;
+        public Shader? photoShaderBlack;
+        public Shader? photoShaderBlue;
+        public Shader? photoShaderGold;
 
         public void Awake()
         {
             Instance = this;
             Logger = base.Logger;
-
             SillyThingsConfig = new Config(Config);
             CosmeticsManager = new ManageCosmetics();
 
@@ -79,19 +99,36 @@ namespace Silly_Things
                 return;
             }
 
-            LoadAudioSource(bundle);
             LoadMorphingCase(bundle);
             LoadBountyContract(bundle);
-            LoadSnakeCardboardBox(bundle);
+            LoadCamera(bundle);
+            //LoadSnakeCardboardBox(bundle);
+            LoadSailorMoonStick(bundle);
             //LoadPortalGun(bundle);
         }
 
-        public void LoadAudioSource(AssetBundle bundle)
+        private T LoadItemTemplate<T>(AssetBundle bundle, string assetPath, string itemName, int rarity, bool addtoShop = false, int cost = 0, string displayText = "") where T : GrabbableObject
         {
-            SoundOpenUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/MorphingCase/Case/open.ogg");
-            SoundCloseUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/MorphingCase/Case/close.ogg");
-            SoundOpenCardboardBox = bundle.LoadAsset<AudioClip>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/open.ogg");
-            SoundCloseCardboardBox = bundle.LoadAsset<AudioClip>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/close.ogg");
+            Item item = bundle.LoadAsset<Item>(assetPath);
+
+            T script = item.spawnPrefab.AddComponent<T>();
+            script.name = itemName;
+            script.grabbable = true;
+            script.grabbableToEnemies = true;
+            script.itemProperties = item;
+
+            NetworkPrefabs.RegisterNetworkPrefab(item.spawnPrefab);
+            Items.RegisterScrap(item, rarity, Levels.LevelTypes.All);
+
+            if (addtoShop)
+            {
+                TerminalNode node = ScriptableObject.CreateInstance<TerminalNode>();
+                node.clearPreviousText = true;
+                node.displayText = displayText;
+                Items.RegisterShopItem(item, itemInfo: node, price: cost);
+            }
+
+            return script;
         }
 
         public void OnApplicationQuit()
@@ -102,14 +139,11 @@ namespace Silly_Things
         public void LoadMorphingCase(AssetBundle bundle)
         {
             UI_MorphingCase = bundle.LoadAsset<GameObject>("Assets/LethalModding/MorphingCase/UI/UICase.prefab");
-            Item morphingCase = bundle.LoadAsset<Item>("Assets/LethalModding/MorphingCase/Case/ShapeshiftCaseItem.asset");
-            MorphingCase script = morphingCase.spawnPrefab.AddComponent<MorphingCase>();
-            script.name = "Morphing Case";
-            script.grabbable = true;
-            script.grabbableToEnemies = true;
-            script.itemProperties = morphingCase;
-            NetworkPrefabs.RegisterNetworkPrefab(morphingCase.spawnPrefab);
-            Items.RegisterScrap(morphingCase, SillyThingsConfig.MorphingCaseItemRarity.Value, Levels.LevelTypes.All);
+
+            SoundOpenUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/MorphingCase/Case/open.ogg");
+            SoundCloseUI = bundle.LoadAsset<AudioClip>("Assets/LethalModding/MorphingCase/Case/close.ogg");
+
+            LoadItemTemplate<MorphingCase>(bundle, "Assets/LethalModding/MorphingCase/Case/ShapeshiftCaseItem.asset", "Morphing Case", SillyThingsConfig.MorphingCaseItemRarity.Value);
         }
 
         public void LoadBountyContract(AssetBundle bundle)
@@ -118,73 +152,149 @@ namespace Silly_Things
             SoundSonar = bundle.LoadAsset<AudioClip>("Assets/LethalModding/BountyContract/sonar.ogg");
             UI_Bounty = bundle.LoadAsset<GameObject>("Assets/LethalModding/BountyContract/UI/UIBounty.prefab");
 
+            LoadItemTemplate<BountyContract>(bundle, "Assets/LethalModding/BountyContract/BountyContract.asset", "Bounty Contract", SillyThingsConfig.BountyContract.Value);
+
             string baseJsonPath = Path.Combine(Paths.PluginPath, "Silly_Things/BountyEnemies.json");
             BountyContract.LoadWeightsFromJson(baseJsonPath);
+        }
 
-            Item bountyContract = bundle.LoadAsset<Item>("Assets/LethalModding/BountyContract/BountyContract.asset");
-            BountyContract script = bountyContract.spawnPrefab.AddComponent<BountyContract>();
-            script.name = "Bounty Contract";
-            script.grabbable = true;
-            script.grabbableToEnemies = true;
-            script.itemProperties = bountyContract;
-            NetworkPrefabs.RegisterNetworkPrefab(bountyContract.spawnPrefab);
-            Items.RegisterScrap(bountyContract, SillyThingsConfig.BountyContract.Value, Levels.LevelTypes.All);
+        public void LoadSailorMoonStick(AssetBundle bundle)
+        {
+            LoadItemTemplate<SailorMoonStick>(bundle, "Assets/LethalModding/SailorMoonStick/SailorMoonStick.asset", "Sailor Moon Stick", SillyThingsConfig.BountyContract.Value);
+        }
+
+        public void LoadCamera(AssetBundle bundle)
+        {
+            SoundShutter = bundle.LoadAsset<AudioClip>("Assets/LethalModding/Camera/cameraShutter.ogg");
+            SoundSucess = bundle.LoadAsset<AudioClip>("Assets/LethalModding/Camera/Sucess.ogg");
+            SoundGear = bundle.LoadAsset<AudioClip>("Assets/LethalModding/Camera/gearCamera.ogg");
+
+            CameraVariantGold = bundle.LoadAsset<GameObject>("Assets/LethalModding/Camera/CameraVariantGold/CameraItemGold.prefab");
+            CameraVariantBlue = bundle.LoadAsset<GameObject>("Assets/LethalModding/Camera/CameraVariantBlue/CameraItemBlue.prefab");
+            CameraVariantBlack = bundle.LoadAsset<GameObject>("Assets/LethalModding/Camera/CameraVariantBlack/CameraItemBlack.prefab");
+
+            string displayText = "Take picture of monsters.\n" + "Sell them to the Company.\n" + "Live for another day of work\n\n" + "Each monster give different value to the pictures (based on their dangerosity)\n" + "Friend in the picture with monsters bring more value to it\n";
+
+            LoadItemTemplate<CameraItem>(bundle, "Assets/LethalModding/Camera/CameraItem.asset", "Camera", SillyThingsConfig.cameraLootRarity.Value, addtoShop: SillyThingsConfig.cameraCanBeBuy.Value, cost: SillyThingsConfig.cameraCost.Value, displayText: displayText);
+
+            PhotoItemPrefab = LoadItemTemplate<PhotoItem>(bundle, "Assets/LethalModding/Camera/PhotoItem/PhotoItem.asset", "Picture", 0).gameObject;
+
+            string monsters = SillyThingsConfig.monsterValues.Value;
+            string[] monsterValuePair = monsters.Split(",");
+
+            Helper.LogDebugMod("Display monsters and there values : ", "");
+            foreach (string mvp in monsterValuePair)
+            {
+                string[] m = mvp.Split(":");
+                if (m.Length == 2)
+                {
+                    try
+                    {
+                        int value = Int32.Parse(m[1]);
+                        var p = new HelperCamera.MonsterNameValue(m[0].ToLower(), value);
+                        HelperCamera.additionalMonsterValues.Add(p);
+                        Helper.LogDebugMod("--> " + p.Name + "  " + p.Value, "");
+                    }
+                    catch (FormatException)
+                    {
+                        Logger.LogError("Add monster config error! Scrap value isn't a number! ");
+                    }
+                }
+                else
+                {
+                    Logger.LogError("Error in config files ! Can't read entry: " + mvp + " (don't add \'|\' at the end)");
+                }
+            }
+
+            photoShader = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/ShaderCamera.shader");
+            photoShaderBlack = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/CameraVariantBlack/ShaderCameraBlack.shader");
+            photoShaderGold = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/CameraVariantGold/ShaderCameraGold.shader");
+            photoShaderBlue = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/CameraVariantBlue/ShaderCameraBlue.shader");
+
+            if (SillyThingsConfig.DeletePictureOnLaunch.Value)
+                DeletePictures();
+        }
+
+        public void DeletePictures()
+        {
+            try
+            {
+                string folder = Path.Combine(Paths.GameRootPath, "CameraPictures");
+
+                if (!Directory.Exists(folder))
+                    return;
+
+                Directory.GetFiles(folder).ToList().ForEach(File.Delete);
+            }
+            catch (System.Exception e)
+            {
+                Logger.LogError("Failed to delete pictures" + e);
+            }
         }
 
         public void LoadSnakeCardboardBox(AssetBundle bundle)
         {
             BigCardboardBoxPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/BoxOnPlayer/CardBoardModel.prefab");
-
             UI_SnakeCardboardBox = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/UI/CardboardBox.prefab");
+            SoundOpenCardboardBox = bundle.LoadAsset<AudioClip>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/open.ogg");
+            SoundCloseCardboardBox = bundle.LoadAsset<AudioClip>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/close.ogg");
 
-            Item snakeCardboardBox = bundle.LoadAsset<Item>("Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/CardBoardBoxItem.asset");
-            SnakeCardboardBox script = snakeCardboardBox.spawnPrefab.AddComponent<SnakeCardboardBox>();
-            script.grabbable = true;
-            script.name = "A simple cardboard";
-            script.grabbableToEnemies = true;
-            script.itemProperties = snakeCardboardBox;
-            NetworkPrefabs.RegisterNetworkPrefab(snakeCardboardBox.spawnPrefab);
-            Items.RegisterScrap(snakeCardboardBox, SillyThingsConfig.SnakeCardboardBox.Value, Levels.LevelTypes.All);
+            LoadItemTemplate<SnakeCardboardBox>(bundle, "Assets/LethalModding/SnakeCardboardBox/SnakeCardboardBox/CardBoardBoxItem.asset", "A simple cardboard", SillyThingsConfig.SnakeCardboardBox.Value);
         }
 
         public void LoadPortalGun(AssetBundle bundle)
         {
             LoadPortalPrefab(bundle);
-            Item portalGunItem = bundle.LoadAsset<Item>("Assets/LethalModding/PortalGun/PortalGunItem.asset");
-            PortalGun script = portalGunItem.spawnPrefab.AddComponent<PortalGun>();
-            script.grabbable = true;
-            script.name = "Portal Gun";
-            script.grabbableToEnemies = true;
-            script.itemProperties = portalGunItem;
-
-            NetworkPrefabs.RegisterNetworkPrefab(portalGunItem.spawnPrefab);
-            Items.RegisterScrap(portalGunItem, SillyThingsConfig.SnakeCardboardBox.Value, Levels.LevelTypes.All);
+            LoadItemTemplate<PortalGun>(bundle, "Assets/LethalModding/PortalGun/PortalGunItem.asset", "Portal Gun", SillyThingsConfig.SnakeCardboardBox.Value);
         }
 
         public void LoadPortalPrefab(AssetBundle bundle)
         {
-            PortalPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/PortalGun/portal/Portal.prefab");
-            if (PortalPrefab == null)
+            PortalPrefabA = bundle.LoadAsset<GameObject>("Assets/LethalModding/PortalGun/portal/PortalA.prefab");
+            if (PortalPrefabA == null)
             {
-                Logger.LogError("Portal prefab not found!");
+                Logger.LogError("Portal A prefab not found!");
                 return;
             }
 
-            if (PortalPrefab.GetComponent<Portal>() == null)
-                PortalPrefab.AddComponent<Portal>();
+            if (PortalPrefabA.GetComponent<Portal>() == null)
+                PortalPrefabA.AddComponent<Portal>();
 
-            Rigidbody rb = PortalPrefab.GetComponent<Rigidbody>();
+            Rigidbody rb = PortalPrefabA.GetComponent<Rigidbody>();
             if (rb == null)
-                rb = PortalPrefab.AddComponent<Rigidbody>();
+                rb = PortalPrefabA.AddComponent<Rigidbody>();
             rb.isKinematic = true;
             rb.useGravity = false;
 
-            Collider col = PortalPrefab.GetComponent<Collider>();
+            Collider col = PortalPrefabA.GetComponent<Collider>();
             if (col == null)
-                col = PortalPrefab.AddComponent<BoxCollider>();
+                col = PortalPrefabA.AddComponent<BoxCollider>();
             col.isTrigger = true;
 
-            NetworkPrefabs.RegisterNetworkPrefab(PortalPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(PortalPrefabA);
+
+            PortalPrefabB = bundle.LoadAsset<GameObject>("Assets/LethalModding/PortalGun/portal/PortalB.prefab");
+            if (PortalPrefabB == null)
+            {
+                Logger.LogError("Portal B prefab not found!");
+                return;
+            }
+
+            if (PortalPrefabB.GetComponent<Portal>() == null)
+                PortalPrefabB.AddComponent<Portal>();
+
+            Rigidbody rb2 = PortalPrefabB.GetComponent<Rigidbody>();
+            if (rb == null)
+                rb = PortalPrefabB.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+
+            Collider col2 = PortalPrefabB.GetComponent<Collider>();
+            if (col == null)
+                col = PortalPrefabB.AddComponent<BoxCollider>();
+            col.isTrigger = true;
+
+            NetworkPrefabs.RegisterNetworkPrefab(PortalPrefabB);
         }
     }
 }

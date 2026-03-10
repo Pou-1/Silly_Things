@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: UnderwaterFilter
+  m_EditorClassIdentifier:
+  components:
+  - {fileID: 11400000, guid: 52b2147090e8c0845a50f1f7cb7ff731, type: 2}
+  - {fileID: 11400000, guid: 3b077f2233c6d264cbc18f4036aa0ef7, type: 2}
+  - {fileID: 11400000, guid: e8aa309e82afe6744a27654d04dff873, type: 2}
+  - {fileID: 11400000, guid: 5dc0ed4d6115b1b46baaa8f08ba6af61, type: 2}
+  - {fileID: 11400000, guid: 5a9c60dceb215ca45ab410d802e19b8a, type: 2}
+  - {fileID: 11400000, guid: 3aabf6b4231920140858102d0808d4a1, type: 2}

@@ -1,0 +1,729 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb5890291368e4720f01896e9c2e556e, type: 3}
+  m_Name: 0_Unlockables
+  m_EditorClassIdentifier:
+  unlockables:
+  - unlockableName: Orange suit
+    prefabObject: {fileID: 0}
+    unlockableType: 0
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 1
+    placedPosition: {x: 10.139808, y: 1.878648, z: -13.134488}
+    placedRotation: {x: 270, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 2100000, guid: e6a7e279bec648c40a6b0c7dfaaf956b, type: 2}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 1
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Green suit
+    prefabObject: {fileID: 0}
+    unlockableType: 0
+    shopSelectionNode: {fileID: 11400000, guid: fb4cf42c530478844ad8cc109dbf4c06, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 2100000, guid: eb724368506be714282595e1d26d4cd5, type: 2}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Hazard suit
+    prefabObject: {fileID: 0}
+    unlockableType: 0
+    shopSelectionNode: {fileID: 11400000, guid: 9ff07b7dd57aa5d46b9495f82c0eabb0, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 2100000, guid: 3c019c4ebb350a7428e62280ee24ba66, type: 2}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Pajama suit
+    prefabObject: {fileID: 0}
+    unlockableType: 0
+    shopSelectionNode: {fileID: 11400000, guid: 585ee6cc9ce80544cb561ea8bf313a35, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 2100000, guid: a0fb93a4fdee0164abbcda0d70a560a8, type: 2}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Cozy lights
+    prefabObject: {fileID: 1534875320347036, guid: 8671ae80ecf65124d87514c980a0353a, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 34f8b287013d387449e20e95635b9bee, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.005
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Teleporter
+    prefabObject: {fileID: 1163410097951902, guid: a718ef9f8d2eff444960f3d779520c7f, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 1
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Television
+    prefabObject: {fileID: 1749103507987247, guid: 0c087cc630cf5bb478bd71f73d0239ff, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 1c6aa3081d375564593ae20fa2562160, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.02
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Cupboard
+    prefabObject: {fileID: 0}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 1
+    unlockedInChallengeFile: 0
+    spawnPrefab: 0
+    jumpAudio: {fileID: 0}
+  - unlockableName: File Cabinet
+    prefabObject: {fileID: 0}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 1
+    unlockedInChallengeFile: 0
+    spawnPrefab: 0
+    jumpAudio: {fileID: 0}
+  - unlockableName: Toilet
+    prefabObject: {fileID: 1831733532650580, guid: e8218c5e1b09ade469854989c8fc8d97, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: b0460a264d234194591460a0c6d81c69, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.01
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Shower
+    prefabObject: {fileID: 1125327778277726, guid: ee22a495acc7efb4b845f70a28e1f901, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: ef3d31b3b14ca4642b9e03ba3e323d81, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.015
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Light switch
+    prefabObject: {fileID: 0}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 0
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 1
+    unlockedInChallengeFile: 0
+    spawnPrefab: 0
+    jumpAudio: {fileID: 0}
+  - unlockableName: Record player
+    prefabObject: {fileID: 1992462603501219, guid: 588c2cc379834ed40bfe234566030f53, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 85b8380b5ddb07e4db7a89780225646d, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.005
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Table
+    prefabObject: {fileID: 1523003464133659, guid: 1da45ea87c17fc94eb4a9497902aad52, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 4acfa5ec5b78c1d4f9de8fcbdc10dfff, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.004
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Romantic table
+    prefabObject: {fileID: 1471593425416383, guid: 47e9696206a172b458e7fa64ab372a9a, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 9b49c7f7112d74849aeb544411295000, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.005
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Bunkbeds
+    prefabObject: {fileID: 0}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 1
+    unlockedInChallengeFile: 0
+    spawnPrefab: 0
+    jumpAudio: {fileID: 0}
+  - unlockableName: Terminal
+    prefabObject: {fileID: 0}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 0
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 1
+    unlockedInChallengeFile: 0
+    spawnPrefab: 0
+    jumpAudio: {fileID: 0}
+  - unlockableName: Signal translator
+    prefabObject: {fileID: 1461184412215797, guid: 41b2bdca906eeaa42923b47526ea59da, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 3d3f848516dba48488fb9b277b521f9c, type: 2}
+    alwaysInStock: 1
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: -0.012
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Loud horn
+    prefabObject: {fileID: 1064589057869501, guid: 6b44bc0553e336d4d88e9f90cc416d87, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 1
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.0025
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Inverse Teleporter
+    prefabObject: {fileID: 1667214887966838, guid: ff15b7ea0a2dabb46879f4dc6bb4549c, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 0}
+    alwaysInStock: 1
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.004
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: JackOLantern
+    prefabObject: {fileID: 1888838811482348, guid: ce0d0e7369cbe5246bab35e91d6ed00a, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: c94affe67b7282a4391788e24b4343f6, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.012
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Welcome mat
+    prefabObject: {fileID: 1580787165473766, guid: 24ae5364ac603ba4f82bc33cee187b8d, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 87b834fa91f1e234eb72ef50c4bdfea5, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.003
+    inStorage: 0
+    canBeStored: 0
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Goldfish
+    prefabObject: {fileID: 1251620425239152, guid: 1eea59fdedccae544a8a58f9e119af13, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 6927e3824bfa1a54a9bdc331be2d23a5, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.006
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Plushie pajama man
+    prefabObject: {fileID: 1939700371024231, guid: b00fb6a6f8f552e4baab07e996eb5d59, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: afb2de4008654ce4198167f89688b7e6, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.003
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Purple Suit
+    prefabObject: {fileID: 0}
+    unlockableType: 0
+    shopSelectionNode: {fileID: 11400000, guid: 4a5a8132442150149ae4b890d2211ee3, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 2100000, guid: e1a2e2d06903f8443839a4aba9f63db2, type: 2}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 1
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Bee Suit
+    prefabObject: {fileID: 0}
+    unlockableType: 0
+    shopSelectionNode: {fileID: 11400000, guid: 28d75e3144fcfdc46bdac57e903918fc, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 2100000, guid: 871f63c8e0da44c41ade13413e8a7624, type: 2}
+    headCostumeObject: {fileID: 1215513073379492, guid: f95471f0d57f9b74b8b41e843af26273, type: 2}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Bunny Suit
+    prefabObject: {fileID: 0}
+    unlockableType: 0
+    shopSelectionNode: {fileID: 11400000, guid: fe6b3c1bc225e274da64ebf0fae6ee03, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 0
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 2100000, guid: 3fe0027638e85c24c96dfed979e83694, type: 2}
+    headCostumeObject: {fileID: 1102898708852552, guid: c8c4858ca0df3f04d9dfbf0b48fd3813, type: 2}
+    lowerTorsoCostumeObject: {fileID: 1825591867687834, guid: 0260169583877e440acfc0e18a7d9832, type: 2}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 8300000, guid: 0b5b4edb4fa76af458598d526a4c99b8, type: 3}
+  - unlockableName: Disco Ball
+    prefabObject: {fileID: 1831712777657967, guid: 0539c434f1e53cc489f8646d4298eb13, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: ca17400e63a9121469eb7de2f1a7b556, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.06
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Microwave
+    prefabObject: {fileID: 1837537862958759, guid: 6526c02df8e27a44a825e5f0831dc58c, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: fb2ef85ad8f60a04c9538a4b0829b669, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.01
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Sofa chair
+    prefabObject: {fileID: 1410325868467155, guid: 8e420083195abbb44a30748ffa15650d, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 4644dc633cf85304798d99d505a95933, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.008
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Fridge
+    prefabObject: {fileID: 1677600093326207, guid: be0bb823cd89b1d48987f69da2d3f9e0, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 94f95ffe93af08e4396fcc097f8010ab, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.01
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Classic painting
+    prefabObject: {fileID: 1874772170299769, guid: ca5c65d92da986744a34aee84040e597, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 7fe43e43269bbee4887f9d994a084fdd, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.006
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Electric chair
+    prefabObject: {fileID: 1050936341134111, guid: 60d1eb02a2790cb47b43e90248910a14, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: 592b6c641072e79429221d7144b6ea56, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.018
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}
+  - unlockableName: Dog house
+    prefabObject: {fileID: 1661905215932533, guid: 6e57e4c3f41d59f498a53b9df97f6245, type: 2}
+    unlockableType: 1
+    shopSelectionNode: {fileID: 11400000, guid: ce1059bde1dc64d4d807d57baf429e41, type: 2}
+    alwaysInStock: 0
+    IsPlaceable: 1
+    hasBeenMoved: 0
+    placedPosition: {x: 0, y: 0, z: 0}
+    placedRotation: {x: 0, y: 0, z: 0}
+    luckValue: 0.007
+    inStorage: 0
+    canBeStored: 1
+    maxNumber: 1
+    hasBeenUnlockedByPlayer: 0
+    suitMaterial: {fileID: 0}
+    headCostumeObject: {fileID: 0}
+    lowerTorsoCostumeObject: {fileID: 0}
+    alreadyUnlocked: 0
+    unlockedInChallengeFile: 0
+    spawnPrefab: 1
+    jumpAudio: {fileID: 0}

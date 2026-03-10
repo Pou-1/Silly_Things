@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: Sky and Fog CompanyBuilding
+  m_EditorClassIdentifier:
+  components:
+  - {fileID: 11400000, guid: c8ea2ea41f148e44bb7886bc63c82da4, type: 2}
+  - {fileID: 11400000, guid: 6e4a5b710e809d44fa28add755068942, type: 2}
+  - {fileID: 11400000, guid: 8cb5a2ef27e434440b7e9cce91f46a29, type: 2}
+  - {fileID: 11400000, guid: 8d99ca7c68f365143ab2e665beed16a7, type: 2}
+  - {fileID: 11400000, guid: 594c9bd22b8c1744fa9ad5ff4bdbaa6a, type: 2}

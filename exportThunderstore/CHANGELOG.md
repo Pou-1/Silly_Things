@@ -1,3 +1,9 @@
+# 1.0.2 Initial release
+
+-   **Added**
+    -   A camera item that allow to capture ur best moment !
+
+
 # 1.0.1 Initial release
 
 -   **Added**
