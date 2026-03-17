@@ -100,10 +100,10 @@ namespace Silly_Things
             }
 
             LoadMorphingCase(bundle);
-            LoadBountyContract(bundle);
+            //LoadBountyContract(bundle);
             LoadCamera(bundle);
             //LoadSnakeCardboardBox(bundle);
-            LoadSailorMoonStick(bundle);
+            //LoadSailorMoonStick(bundle);
             //LoadPortalGun(bundle);
         }
 
@@ -154,8 +154,22 @@ namespace Silly_Things
 
             LoadItemTemplate<BountyContract>(bundle, "Assets/LethalModding/BountyContract/BountyContract.asset", "Bounty Contract", SillyThingsConfig.BountyContract.Value);
 
-            string baseJsonPath = Path.Combine(Paths.PluginPath, "Silly_Things/BountyEnemies.json");
-            BountyContract.LoadWeightsFromJson(baseJsonPath);
+            string monsters = SillyThingsConfig.BountymonsterValues.Value;
+            string[] monsterValuePair = monsters.Split(",");
+
+            foreach (var mvp in monsterValuePair)
+            {
+                if (string.IsNullOrEmpty(mvp))
+                    continue;
+
+                var parts = mvp.Split(':');
+                if (parts.Length == 3)
+                {
+                    int value = int.Parse(parts[1]);
+                    int count = int.Parse(parts[2]);
+                    HelperBountyContract.MonsterValues.Add(new HelperBountyContract.MonsterNameBounty(parts[0].ToLower(), value, count));
+                }
+            }
         }
 
         public void LoadSailorMoonStick(AssetBundle bundle)

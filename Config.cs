@@ -1,5 +1,4 @@
 ﻿using BepInEx.Configuration;
-using System.Reflection;
 
 namespace Silly_Things
 {
@@ -17,6 +16,7 @@ namespace Silly_Things
         public ConfigEntry<int> BountyContract;
         public ConfigEntry<int> BountyChanceToFocusPlayer;
         public ConfigEntry<int> BountyRewardForKillingPlayer;
+        public ConfigEntry<string> BountymonsterValues;
 
         // _____________CAMERA_____________ \\
         public ConfigEntry<bool> DeletePictureOnLaunch;
@@ -39,8 +39,6 @@ namespace Silly_Things
         public ConfigEntry<float> flashAngle;
         public ConfigEntry<float> flashIntensity;
         public ConfigEntry<float> flashRange;
-        public ConfigEntry<float> flashDuration;
-        public ConfigEntry<float> pictureTakenAtFlashPercentage;
 
         // _____________PICTURE_____________ \\
         public ConfigEntry<int> pictureResolutionWidth;
@@ -64,179 +62,172 @@ namespace Silly_Things
             );
 
             MorphingCaseItemRarity = configFile.Bind(
-                "Spawn Rates",
+                "Morphing Case",
                 "MorphingCaseItemRarity",
                 15,
                 "Rarity of the Morphing Case Item (higher = more common)."
             );
 
             SnakeCardboardBox = configFile.Bind(
-                "Spawn Rates",
+                "Snake Cardboard Box",
                 "SnakeCardboardBoxItemRarity",
                 10,
                 "Rarity of the Snake Card Box Item (higher = more common)."
             );
 
             BountyContract = configFile.Bind(
-                "Spawn Rates",
+                "Bounty Contract",
                 "BountyContractItemRarity",
                 15,
                 "Rarity of the Bounty Contract Item (higher = more common)."
             );
 
             BountyChanceToFocusPlayer = configFile.Bind(
-                "Chance target player in bounty",
+                "Bounty Contract",
                 "BountyChanceToFocusPlayer",
-                25,
+                10,
                 "Percentage of chance for a bounty contract to focus a player (higher = more chance)."
             );
 
+            BountymonsterValues = configFile.Bind(
+               "Bounty Contract",
+               "Monsters Bounty value",
+               "" + MakeMonsterBountyString(),
+               "Bounty by monster Assign a monster name to a value monsterName1:scrapValue1,monsterName2:scrapValue2,... (Can be used to overide base monster values too)"
+           );
+
             BountyRewardForKillingPlayer = configFile.Bind(
-                "Rewards for killing a player in bounty",
+                "Bounty Contract",
                 "BountyRewardForKillingPlayer",
-                100,
+                50,
                 "Amount of Money earn when a player is killed in a bounty contract (higher = more money)."
             );
 
             // _____________CAMERA_____________ \\
             DeletePictureOnLaunch = configFile.Bind(
-                "Files",
+                "Camera",
                 "DeletePictureOnLaunch",
                 false,
                 "Are all the picture getting deleted on every launch of lethal company"
             );
 
             monsterValues = configFile.Bind(
-                "Gameplay",
+                "Camera",
                 "Monsters value",
                 "" + MakeMonsterString(),
                 "Assign a monster name to a value monsterName1:scrapValue1,monsterName2:scrapValue2,... (Can be used to overide base monster values too)"
             );
 
             defaultMonsterValue = configFile.Bind(
-                "Gameplay",
+                "Camera",
                 "Default monster value",
                 10,
                 "Change default value for monster not listed above (MonsterValues)"
             );
 
             monsterValueMultiplier = configFile.Bind(
-                "Gameplay",
+                "Camera",
                 "Monster value multiplier",
                 1,
-                "Change this value to multiply the value of all pictures"
+                "Change this value to multiply the value of all taken monster"
             );
 
             monsterReactToFlash = configFile.Bind(
-                "Gameplay",
+                "Camera",
                 "Monster React to flash",
                 true,
-                "Does monster have special reaction when takken in picture"
+                "Does monster have special reaction when taken in picture"
             );
 
             cameraLootRarity = configFile.Bind(
-                "Gameplay",
+                "Camera",
                 "CameraLootRarity",
-                15,
+                17,
                 "Chance of looting a camera (1 very rare, 100 very common)"
             );
 
             cameraCanBeBuy = configFile.Bind(
-                "Gameplay",
+                "Camera",
                 "CameraCanBeBuy",
                 true,
                 "Does the camera appear in the store ?"
             );
 
             cameraCost = configFile.Bind(
-                "Gameplay",
+                "Camera",
                 "CameraCost",
                 150,
                 "The cost of the camera in the store"
             );
 
             cameraFov = configFile.Bind(
-                "Flash",
+                "Camera",
                 "CameraFov",
                 75f,
                 "The Field of view of the camera"
             );
 
             flashAngle = configFile.Bind(
-                "Flash",
+                "Camera",
                 "FlashAngle",
                 160f,
                 "The wideness of the flash (in degree)"
             );
 
             flashIntensity = configFile.Bind(
-                "Flash",
+                "Camera",
                 "FlashIntensity",
                 250f,
                 "The intensity of the flash"
             );
 
             flashRange = configFile.Bind(
-                "Flash",
+                "Camera",
                 "FlashRange",
                 50f,
                 "The range of the flash in meter"
-            );
-
-            flashDuration = configFile.Bind(
-                "Flash",
-                "FlashDuration",
-                0.8f,
-                "The duration of the flash in seconds (How long the intensity goes back to 0)"
-            );
-
-            pictureTakenAtFlashPercentage = configFile.Bind(
-                "Flash",
-                "PictureTakenAtFlashPercentage",
-                0.5f,
-                "At which percentage of the flash duration the picture is actually taken (the intensity when the picture is taken is : flashIntensity / (1-pictureTakenAtFlashPercentage) )"
             );
 
             pictureResolutionWidth = configFile.Bind(
                 "Camera",
                 "PictureResolutionWidth",
                 1920,
-                "The width of the picture (careful can heavily impact performance when taking picture)"
+                "The width resolution of the picture taken in your pc (careful can heavily impact performance when the camera is held)"
             );
 
             pictureResolutionHeight = configFile.Bind(
                "Camera",
                "pictureResolutionHeight",
                1080,
-               "The height of the picture (careful can heavily impact performance when taking picture)"
+               "The height resolution of the picture taken in your pc (careful can heavily impact performance when the camera is held)"
             );
 
             pictureResolutionDepth = configFile.Bind(
                 "Camera",
                 "pictureResolutionDepth",
                 50,
-                "The resolution of the camera screen 128,256,512,1024... (careful can heavily impact performance when the camera is held)"
+                "The depth resolution of the picture taken in your pc"
             );
 
             screenResolutionWidth = configFile.Bind(
                 "Camera",
                 "screenResolutionWidth",
-                240,
-                "The resolution of the camera screen 128,256,512,1024... (careful can heavily impact performance when the camera is held)"
+                640,
+                "The width resolution of the camera screen (careful can heavily impact performance when the camera is held)"
             );
 
             screenResolutionHeight = configFile.Bind(
                 "Camera",
                 "screenResolutionHeight",
-                160,
-                "The resolution of the camera screen 128,256,512,1024... (careful can heavily impact performance when the camera is held)"
+                360,
+                "The height resolution of the camera screen (careful can heavily impact performance when the camera is held)"
             );
 
             screenResolutionDepth = configFile.Bind(
                 "Camera",
                 "screenResolutionDepth",
                 50,
-                "The resolution of the camera screen 128,256,512,1024... (careful can heavily impact performance when the camera is held)"
+                "The depth of the camera screen"
             );
 
             cameraCanUpdateScreen = configFile.Bind(
@@ -267,7 +258,6 @@ namespace Silly_Things
                 "The required cooldown between 2 pictures"
             );
 
-
             configFile.Save();
             configFile.SaveOnConfigSet = true;
         }
@@ -277,28 +267,54 @@ namespace Silly_Things
             string str = "";
 
             str += "flowerman:180,";
-            str += "crawler:90,";
-            str += "hoarding bug:2,";
-            str += "centipede:10,";
+            str += "crawler:40,";
+            str += "hoarding bug:10,";
+            str += "centipede:30,";
             str += "radmech:100,";
             str += "bunker spider:50,";
             str += "puffer:10,";
-            str += "jester:250,";
-            str += "blob:2,";
-            str += "girl:180,";
-            str += "spring:30,";
-            str += "nutcracker:80,";
-            str += "masked:60,";
-            str += "mouthdog:40,";
+            str += "jester:200,";
+            str += "blob:20,";
+            str += "girl:100,";
+            str += "spring:100,";
+            str += "nutcracker:200,";
+            str += "masked:30,";
+            str += "mouthdog:100,";
             str += "earth leviathan:120,";
-            str += "forestgiant:40,";
+            str += "forestgiant:50,";
             str += "baboon hawk:10,";
             str += "red locust bees:2,";
             str += "docile locust bees:0,";
             str += "manticoil:0,";
             str += "peeper:2,";
-            str += "locker:60,";
-            str += "fiend:80";
+            str += "maneater:200,";
+            str += "locker:50,";
+            str += "fiend:80,";
+            str += "butler:100,";
+            str += "kidnapper fox:200,";
+            str += "lasso man:50";
+
+            return str;
+        }
+
+        private string MakeMonsterBountyString()
+        {
+            string str = "";
+
+            str += "flowerman:300:5,";
+            str += "crawler:75:2,";
+            str += "hoarding bug:50:1,";
+            str += "centipede:75:2,";
+            str += "bunker spider:150:5,";
+            str += "butler:250:5,";
+            str += "maneater:500:10,";
+            str += "masked:50:1,";
+            str += "nutcracker:250:5,";
+            str += "baboon hawk:100:3,";
+            str += "mouthdog:300:6,";
+            str += "forestgiant:200:5,";
+            str += "kidnapper fox:250:6,";
+            str += "lasso man:200:5";
 
             return str;
         }

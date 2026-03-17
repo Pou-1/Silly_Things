@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace Silly_Things.codes.patches
 {
-   [HarmonyPatch(typeof(PlayerControllerB))]
+    /*[HarmonyPatch(typeof(PlayerControllerB))]
     internal class PatchPlayerControllerB
     {
         [HarmonyPrefix]
@@ -19,5 +19,5 @@ namespace Silly_Things.codes.patches
             }
             return true;
         }
-    }
+    }*/
 }

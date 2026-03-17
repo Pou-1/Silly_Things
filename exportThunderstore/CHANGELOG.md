@@ -1,10 +1,14 @@
-# 1.0.2 Initial release
+# 1.0.3
 
 -   **Added**
     -   A camera item that allow to capture ur best moment !
 
+# 1.0.2 Bug Fix
 
-# 1.0.1 Initial release
+-   **Fix**
+    -   A Bug in the shapeshift case
+
+# 1.0.1
 
 -   **Added**
     -   The cardboard of metal gear into the game (allow player to hide from some enemies)

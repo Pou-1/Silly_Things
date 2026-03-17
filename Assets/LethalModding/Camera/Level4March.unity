@@ -211091,7 +211091,7 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 00bce39ca1c142042a7987b1011211dd, type: 3}
---- !u!1001 &2776013288049465683
+--- !u!1001 &998392679
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -211099,11 +211099,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1265013836505147809, guid: 842ea1d38841a4447a5d708a200fd05f,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.82
-      objectReference: {fileID: 0}
     - target: {fileID: 4699061715909973935, guid: 842ea1d38841a4447a5d708a200fd05f,
         type: 3}
       propertyPath: m_Name
@@ -211132,17 +211127,17 @@ PrefabInstance:
     - target: {fileID: 4868212857025631095, guid: 842ea1d38841a4447a5d708a200fd05f,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4868212857025631095, guid: 842ea1d38841a4447a5d708a200fd05f,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4868212857025631095, guid: 842ea1d38841a4447a5d708a200fd05f,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4868212857025631095, guid: 842ea1d38841a4447a5d708a200fd05f,
         type: 3}
@@ -211159,20 +211154,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5922731840586063427, guid: 842ea1d38841a4447a5d708a200fd05f,
-        type: 3}
-      propertyPath: m_Intensity
-      value: 3300.8127
-      objectReference: {fileID: 0}
-    - target: {fileID: 7200063470303459732, guid: 842ea1d38841a4447a5d708a200fd05f,
-        type: 3}
-      propertyPath: m_Intensity
-      value: 948.607
-      objectReference: {fileID: 0}
     - target: {fileID: 7868470035726386779, guid: 842ea1d38841a4447a5d708a200fd05f,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 132702234
+      value: 2546088125
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -211194,5 +211179,5 @@ SceneRoots:
   - {fileID: 3478}
   - {fileID: 3513}
   - {fileID: 3520}
-  - {fileID: 2776013288049465683}
   - {fileID: 968712686}
+  - {fileID: 998392679}

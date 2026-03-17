@@ -271,9 +271,11 @@ namespace Silly_Things.codes.BountyContract
             {
                 if (enemyInGame != null && !enemyInGame.isEnemyDead)
                 {
-                    string enemyName = enemyInGame.enemyType.enemyName.Trim().ToUpper();
-
-                    if (WeightsByType.ContainsKey(enemyName))
+                    var monster = HelperBountyContract.MonsterValues.Find(m => m.Name == enemyInGame.enemyType.enemyName.Trim().ToLower());
+                    if (monster.Name != null)
+                    {
+                        possibleEnemies.Add(enemyInGame);
+                    }
                         possibleEnemies.Add(enemyInGame);
                 }
             }
@@ -304,8 +306,9 @@ namespace Silly_Things.codes.BountyContract
 
                 string enemyName = targetEnemy.enemyType.enemyName.Trim().ToUpper();
 
-                if (WeightsByType.TryGetValue(enemyName, out int jsonReward))
-                    reward = jsonReward;
+                var monster = HelperBountyContract.MonsterValues.Find(m => m.Name == targetEnemy.enemyType.enemyName.Trim().ToLower());
+                if (monster.Name != null)
+                    reward = monster.Value;
 
                 targetAssigned = true;
 
@@ -339,9 +342,12 @@ namespace Silly_Things.codes.BountyContract
 
             if (targetEnemy != null)
             {
-                string enemyName = targetEnemy.enemyType.enemyName.Trim().ToUpper();
-                WeightsByType.TryGetValue(enemyName, out rewardTotal);
-                ItemsCountByType.TryGetValue(enemyName, out itemCount);
+                var monster = HelperBountyContract.MonsterValues.Find(m => m.Name == targetEnemy.enemyType.enemyName.Trim().ToLower());
+                if (monster.Name != null)
+                {
+                    reward = monster.Value;
+                    itemCount = monster.ItemCount;
+                }
             }
             else if (targetPlayer != null)
             {
@@ -562,51 +568,6 @@ namespace Silly_Things.codes.BountyContract
                 audio.PlayOneShot(Plugin.Instance.SoundSonar);
 
                 nextBeepTime = Time.time + interval;
-            }
-        }
-        
-        // _____________JSON_____________ \\
-        public static void LoadWeightsFromJson(string jsonPath)
-        {
-            try
-            {
-                if (!File.Exists(jsonPath))
-                {
-                    Plugin.Logger.LogError("JSON not found : " + jsonPath);
-                    return;
-                }
-
-                string jsonContent = File.ReadAllText(jsonPath);
-
-                _reader = JsonConvert.DeserializeObject<List<EnemyWeight>>(jsonContent);
-
-                if (_reader == null || _reader.Count == 0)
-                {
-                    Plugin.Logger.LogError("JSON not valid");
-                    return;
-                }
-
-                WeightsByType.Clear();
-                ItemsCountByType.Clear();
-
-                foreach (var entry in _reader)
-                {
-                    if (entry.enemyName != null)
-                    {
-                        string key = entry.enemyName.Trim().ToUpper();
-
-                        if (!WeightsByType.ContainsKey(key))
-                        {
-                            WeightsByType.Add(key, entry.reward);
-                            ItemsCountByType.Add(key, entry.numberOfItemInReward);
-                            //Plugin.Logger.LogInfo($"[BountyJSON] Loaded {key} reward {entry.reward}");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Plugin.Logger.LogError(ex.ToString());
             }
         }
     }

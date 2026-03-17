@@ -20,7 +20,7 @@ namespace Silly_Things.Codes.CameraItem
         private AudioSource? audio;
         private Camera? itemCamera;
         private ParticleSystem? clickParticles;
-        private static List<EnemyAI> photographedEnemies = new List<EnemyAI>();
+        private List<EnemyAI> photographedEnemies = new List<EnemyAI>();
         private float lastPhotoTime = -999f;
         private Light? flashLight;
         Material? photoMat;
@@ -44,6 +44,7 @@ namespace Silly_Things.Codes.CameraItem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            photographedEnemies.Clear();
             itemCamera = GetComponentInChildren<Camera>(true);
             audio = transform.Find("Audio")?.GetComponent<AudioSource>();
             clickParticles = GetComponentInChildren<ParticleSystem>(true);
@@ -447,7 +448,8 @@ namespace Silly_Things.Codes.CameraItem
 
             SavePhotoToDisk(fullTex);
 
-            Texture2D networkTex = DownscaleTexture(fullTex, 1024, 576);
+            Texture2D networkTex = DownscaleTexture(fullTex, 640, 360);
+            //Texture2D networkTex = DownscaleTexture(fullTex, 1024, 576);
 
             byte[] jpg = networkTex.EncodeToJPG(50);
 

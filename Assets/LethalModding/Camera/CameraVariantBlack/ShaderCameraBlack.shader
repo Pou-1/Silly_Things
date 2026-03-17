@@ -4,7 +4,7 @@ Shader "Custom/PhotoCameraFX_Vintage"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Contrast ("Contrast", Range(0.8,1.5)) = 1.15
-        _Saturation ("Saturation", Range(0,1)) = 0.75
+        _Saturation ("Saturation", Range(0,1)) = 0.9
         _Vignette ("Vignette", Range(0,1)) = 0.7
         _Grain ("Film Grain", Range(0,0.2)) = 0.05
     }
