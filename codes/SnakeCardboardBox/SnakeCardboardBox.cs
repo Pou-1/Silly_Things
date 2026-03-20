@@ -1,5 +1,4 @@
-﻿using GameNetcodeStuff;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -39,14 +38,12 @@ namespace Silly_Things.codes.SnakeCardboardBox
                     PlayerHiddenByBox = false;
                     ui.CloseUI();
                     RemoveBoxServerRpc();
-                    SyncSoundsServerRpc(1);
                 }
                 else
                 {
                     ui.OpenUI();
                     PlayerHiddenByBox = true;
                     SpawnBoxOnPlayerServerRpc();
-                    SyncSoundsServerRpc(0);
                 }
             }
         }
@@ -61,25 +58,10 @@ namespace Silly_Things.codes.SnakeCardboardBox
 
         public override void OnDestroy()
         {
+            base.OnDestroy();
             PlayerHiddenByBox = false;
             Instances.Remove(this);
-            base.OnDestroy();
             RemoveBoxServerRpc();
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void SyncSoundsServerRpc(int idSound)
-        {
-            SyncSoundsClientRpc(idSound);
-        }
-
-        [ClientRpc]
-        public void SyncSoundsClientRpc(int idSound)
-        {
-            if (idSound == 0)
-                audio?.PlayOneShot(Plugin.Instance.SoundOpenCardboardBox);
-            else if (idSound == 1)
-                audio?.PlayOneShot(Plugin.Instance.SoundCloseCardboardBox);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -91,6 +73,7 @@ namespace Silly_Things.codes.SnakeCardboardBox
         [ClientRpc]
         public void SpawnBoxOnPlayerClientRpc()
         {
+            audio?.PlayOneShot(Plugin.Instance.SoundOpenCardboardBox, 0.5f);
             if (playerHeldBy != GameNetworkManager.Instance.localPlayerController)
             {
                 boxObject = Instantiate(Plugin.Instance.BigCardboardBoxPrefab, playerHeldBy.transform.position + new Vector3(0f, 0f, 0f), playerHeldBy.transform.rotation, playerHeldBy.transform);
@@ -106,6 +89,7 @@ namespace Silly_Things.codes.SnakeCardboardBox
         [ClientRpc]
         public void RemoveBoxClientRpc()
         {
+            audio?.PlayOneShot(Plugin.Instance.SoundCloseCardboardBox, 0.5f);
             if (boxObject != null)
             {
                 Destroy(boxObject);

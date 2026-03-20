@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -27,6 +28,10 @@ namespace Silly_Things.Codes.CameraItem
         private static Camera photoCamera;
         private static RenderTexture photoRenderTexture;
 
+        // _____________BATTERY_____________ \\
+        public bool HasBattery => !itemProperties.requiresBattery || (insertedBattery != null && insertedBattery.charge > 0.01f);
+        private float batteryUsagePerShot;
+
         // _____________UI_____________ \\
         private Renderer? screenRenderer;
         private Renderer? cubeSuccessRenderer;
@@ -44,19 +49,18 @@ namespace Silly_Things.Codes.CameraItem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
             photographedEnemies.Clear();
+            SyncScrapValueServerRpc(scrapValue);
+
+            flashLight = GetComponentInChildren<Light>(true);
             itemCamera = GetComponentInChildren<Camera>(true);
-            audio = transform.Find("Audio")?.GetComponent<AudioSource>();
             clickParticles = GetComponentInChildren<ParticleSystem>(true);
+            audio = transform.Find("Audio")?.GetComponent<AudioSource>();
+            valueText = transform.Find("Price")?.GetComponent<TextMeshPro>();
             screenRenderer = transform.Find("Quad")?.GetComponent<Renderer>();
             cubeSuccessRenderer = transform.Find("CubeSucess")?.GetComponent<Renderer>();
-            flashLight = GetComponentInChildren<Light>(true);
-            valueText = transform.Find("Price")?.GetComponent<TextMeshPro>();
 
-            if (valueText != null)
-                valueText.text = scrapValue.ToString() + "$";
-
-            SyncScrapValueServerRpc(scrapValue);
             if (IsServer)
             {
                 int variant = UnityEngine.Random.Range(0, 4);
@@ -87,6 +91,24 @@ namespace Silly_Things.Codes.CameraItem
 
             if (itemCamera != null)
                 itemCamera.enabled = false;
+
+            if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
+            {
+                itemProperties.requiresBattery = true;
+
+                if (insertedBattery == null)
+                    insertedBattery = new Battery(false, 1f);
+
+                insertedBattery.charge = 1f;
+
+                int maxShots = Mathf.Max(1, Plugin.SillyThingsConfig.cameraBatteryNumberOfPickBeforeZero.Value);
+                batteryUsagePerShot = 1f / maxShots;
+            }
+            else
+            {
+                itemProperties.requiresBattery = false;
+            }
+            UpdateUI();
         }
 
         // _____________RENDER OVERRIDE_____________ \\
@@ -107,11 +129,24 @@ namespace Silly_Things.Codes.CameraItem
             itemCamera.Render();
         }
 
+        public bool UseBatteryAndHasBattery()
+        {
+            if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
+            {
+                if (HasBattery)
+                    return true;
+                else
+                    return false;
+            } else
+                return true;
+        }
+
         // _____________ZOOM OVERRIDE_____________ \\
         public override void ItemInteractLeftRight(bool right)
         {
             base.ItemInteractLeftRight(right);
-            if (playerHeldBy == null || itemCamera == null)
+
+            if (playerHeldBy == null || itemCamera == null || !UseBatteryAndHasBattery())
                 return;
 
             float oldFov = currentFov;
@@ -127,7 +162,7 @@ namespace Silly_Things.Codes.CameraItem
             if (!isGearSoundPlaying)
             {
                 isGearSoundPlaying = true;
-                SyncSoundsServerRpc(2);
+                PlayFxServerRpc(1);
                 StartCoroutine(ResetGearSoundFlag(Plugin.Instance.SoundGear.length));
             }
         }
@@ -137,7 +172,7 @@ namespace Silly_Things.Codes.CameraItem
         {
             base.ItemActivate(used, buttonDown);
 
-            if (!IsOwner)
+            if (!IsOwner || !UseBatteryAndHasBattery())
                 return;
 
             if (Time.time - lastPhotoTime < Plugin.SillyThingsConfig.cameraUseCooldown.Value)
@@ -148,7 +183,7 @@ namespace Silly_Things.Codes.CameraItem
             if (!buttonDown || playerHeldBy == null || itemCamera == null)
                 return;
 
-            SyncSoundsServerRpc(0);
+            PlayFxServerRpc(0);
             List<PlayerControllerB> players = new List<PlayerControllerB>();
             List<EnemyAI> monsters = new List<EnemyAI>();
             (monsters, _) = HelperCamera.GetVisibleEntities(playerHeldBy, monsters, players, itemCamera);
@@ -162,27 +197,55 @@ namespace Silly_Things.Codes.CameraItem
                         photographedEnemies.Add(enemy);
                 }
 
-                SyncSoundsServerRpc(3);
-                TriggerCameraEffects(monsters);
+                PlayFxServerRpc(2);
                 StartCoroutine(Success(1f, value));
             }
 
             StartCoroutine(TakePhotoWithFlash());
+            if (insertedBattery != null)
+            {
+                insertedBattery.charge = Mathf.Clamp01(insertedBattery.charge - batteryUsagePerShot);
+            }
+            UpdateUI();
+        }
+
+        public void UpdateUI()
+        {
+            if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
+            {
+                if (screenRenderer != null && valueText != null)
+                {
+                    if (!HasBattery && Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value)
+                        screenRenderer.enabled = false;
+                    else if(HasBattery && Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value)
+                        screenRenderer.enabled = true;
+
+                    int shotsLeft = Mathf.CeilToInt(insertedBattery.charge / batteryUsagePerShot);
+                    valueText.text = scrapValue.ToString() + "$ (" + shotsLeft + ")";
+                }
+            }
+            else
+            {
+                if (valueText != null)
+                    valueText.text = scrapValue.ToString() + "$";
+            }
+
+            if (playerHeldBy == null && screenRenderer != null && itemCamera != null)
+            {
+                screenRenderer.enabled = false;
+                itemCamera.enabled = false;
+            }
         }
 
         public override void EquipItem()
         {
             base.EquipItem();
 
-            if (playerHeldBy == null)
-                return;
-
             playerHeldBy.equippedUsableItemQE = true;
             isPocketed = false;
             currentFov = Plugin.SillyThingsConfig.cameraFov.Value;
 
-            if (valueText != null)
-                valueText.text = scrapValue.ToString() + "$";
+            UpdateUI();
 
             if (itemCamera != null)
             {
@@ -193,12 +256,15 @@ namespace Silly_Things.Codes.CameraItem
             }
         }
 
+        public override void ChargeBatteries()
+        {
+            UpdateUI();
+        }
+
         public override void DiscardItem()
         {
             base.DiscardItem();
-
-            if (itemCamera != null)
-                itemCamera.enabled = false;
+            UpdateUI();
         }
 
         public override void PocketItem()
@@ -214,7 +280,7 @@ namespace Silly_Things.Codes.CameraItem
             if (!IsOwner)
                 return;
 
-            string[] allLines = { "Pick of Mob = $$ : [LMB]", "Zoom : [A]", "Unzoom : [E]" };
+            string[] allLines = { "Pic of Mob = $$ : [LMB]", "Zoom : [A]", "Unzoom : [E]" };
 
             HUDManager.Instance.ClearControlTips();
             HUDManager.Instance.ChangeControlTipMultiple(allLines, holdingItem: true, itemProperties);
@@ -227,6 +293,26 @@ namespace Silly_Things.Codes.CameraItem
         }
 
         // _____________COROUTINE_____________ \\
+        private IEnumerator BigFlashRoutine()
+        {
+            yield return new WaitForSeconds(0.3f);
+
+            clickParticles?.Play();
+
+            if (flashLight == null)
+                yield break;
+
+            flashLight.intensity = Plugin.SillyThingsConfig.flashIntensity.Value;
+            flashLight.range = Plugin.SillyThingsConfig.flashRange.Value;
+            flashLight.spotAngle = Plugin.SillyThingsConfig.flashAngle.Value;
+            flashLight.color = Color.yellow;
+            flashLight.enabled = true;
+
+            yield return new WaitForSeconds(0.1f);
+
+            flashLight.enabled = false;
+        }
+
         private IEnumerator TakePhotoWithFlash()
         {
             if (itemCamera == null || flashLight == null)
@@ -237,6 +323,7 @@ namespace Silly_Things.Codes.CameraItem
             flashLight.intensity = 65f;
             flashLight.range = 65f;
             flashLight.spotAngle = 125f;
+            flashLight.enabled = true;
 
             yield return new WaitForSeconds(0.02f);
 
@@ -248,13 +335,8 @@ namespace Silly_Things.Codes.CameraItem
             string entitiesStr = HelperCamera.GetEntitiesNames(result.Item1, result.Item2);
             SpawnPhotoServerRpc(entitiesStr, itemCamera.transform.position, itemCamera.transform.rotation, currentFov);
 
-            yield return new WaitForSeconds(0.3f);
-
-            clickParticles?.Play();
-            flashLight.intensity = Plugin.SillyThingsConfig.flashIntensity.Value;
-            flashLight.color = Color.yellow;
-            flashLight.range = Plugin.SillyThingsConfig.flashRange.Value;
-            flashLight.spotAngle = Plugin.SillyThingsConfig.flashAngle.Value;
+            PlayFxServerRpc(3);
+            StartCoroutine(BigFlashRoutine());
 
             yield return new WaitForSeconds(0.1f);
 
@@ -278,26 +360,66 @@ namespace Silly_Things.Codes.CameraItem
             Color original = cubeSuccessRenderer.material.color;
             cubeSuccessRenderer.material.color = Color.green;
 
-            if (valueText != null)
-                valueText.text = scrapValue.ToString() + "$ + " + valueToAdd.ToString();
+            UpdateUI();
 
             yield return new WaitForSeconds(duration);
 
             cubeSuccessRenderer.material.color = original;
 
-            if (valueText != null)
-                valueText.text = scrapValue.ToString() + "$";
+            UpdateUI();
 
             SyncScrapValueServerRpc(valueToAdd);
         }
 
-        // _____________COLORS_____________ \\
+        // _____________RPC_____________ \\
+        [ServerRpc]
+        private void PlayFxServerRpc(int fxId)
+        {
+            PlayFxClientRpc(fxId);
+        }
+
+        [ClientRpc]
+        private void PlayFxClientRpc(int fxId)
+        {
+            switch (fxId)
+            {
+                case 0:
+                    audio?.PlayOneShot(Plugin.Instance.SoundShutter);
+                    break;
+                case 1:
+                    audio?.PlayOneShot(Plugin.Instance.SoundGear, 0.4f);
+                    break;
+                case 2:
+                    audio?.PlayOneShot(Plugin.Instance.SoundSucess);
+                    break;
+                case 3:
+                    if (!IsOwner)
+                        StartCoroutine(BigFlashRoutine());
+                    break;
+            }
+        }
+
         [ClientRpc]
         private void SyncVariantClientRpc(int variantIndex)
         {
             ApplyVariant(variantIndex);
         }
 
+        [ServerRpc]
+        private void SyncScrapValueServerRpc(int valueToAdd)
+        {
+            scrapValue += valueToAdd;
+            SyncScrapValueClientRpc(scrapValue);
+        }
+
+        [ClientRpc]
+        private void SyncScrapValueClientRpc(int value)
+        {
+            SetScrapValue(value);
+            UpdateUI();
+        }
+
+        // _____________COLORS_____________ \\
         private void ApplyVariant(int index)
         {
             Transform gold = transform.Find("CameraGOLD");
@@ -343,23 +465,6 @@ namespace Silly_Things.Codes.CameraItem
             Plugin.Logger.LogInfo($"Camera variant synced: {models[index].name}");
         }
 
-        // _____________SCRAP VALUE_____________ \\
-        [ServerRpc]
-        private void SyncScrapValueServerRpc(int valueToAdd)
-        {
-            scrapValue += valueToAdd;
-            SyncScrapValueClientRpc(scrapValue);
-        }
-
-        [ClientRpc]
-        private void SyncScrapValueClientRpc(int value)
-        {
-            SetScrapValue(value);
-
-            if (valueText != null)
-                valueText.text = value.ToString() + "$";
-        }
-
         // _____________CAMERA_____________ \\
         private static void InitializePhotoCamera(int width, int height, int depth)
         {
@@ -376,45 +481,7 @@ namespace Silly_Things.Codes.CameraItem
             photoRenderTexture = new RenderTexture(width, height, depth);
         }
 
-        private void TriggerCameraEffects(List<EnemyAI> enemys)
-        {
-            Helper.LogDebugMod("TriggerCameraEffects", "");
-            foreach (EnemyAI enemy in enemys)
-            {
-                foreach (Renderer r in enemy.GetComponentsInChildren<Renderer>())
-                {
-                    r.material.EnableKeyword("_EMISSION");
-                    r.material.SetColor("_EmissionColor", Color.green * 2f);
-                }
-            }
-        }
-
         // _____________PHOTO_____________ \\
-        private void SavePhotoToDisk(Texture2D tex)
-        {
-            try
-            {
-                string folder = Path.Combine(Paths.GameRootPath, "CameraPictures");
-
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
-
-                string date = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-                string fileName = date + "_" + playerHeldBy.playerUsername + ".png";
-                string path = Path.Combine(folder, fileName);
-
-                byte[] png = tex.EncodeToPNG();
-
-                File.WriteAllBytes(path, png);
-
-                Plugin.Logger.LogInfo("Picture saved: " + path);
-            }
-            catch (System.Exception e)
-            {
-                Plugin.Logger.LogError("Failed to save photo: " + e);
-            }
-        }
-
         [ServerRpc(RequireOwnership = false)]
         private void SpawnPhotoServerRpc(string entitiesStr, Vector3 camPos, Quaternion camRot, float fov, ServerRpcParams rpc = default)
         {
@@ -453,7 +520,8 @@ namespace Silly_Things.Codes.CameraItem
 
             byte[] jpg = networkTex.EncodeToJPG(50);
 
-            SendPhotoToServerServerRpc(photoNetId, jpg, entitiesStr);
+            if (jpg != null)
+                SendPhotoToServerServerRpc(photoNetId, jpg, entitiesStr);
 
             Object.Destroy(fullTex);
             Object.Destroy(networkTex);
@@ -485,6 +553,31 @@ namespace Silly_Things.Codes.CameraItem
             photo.SetPhoto(tex, dateStr, entitiesStr);
         }
 
+        private void SavePhotoToDisk(Texture2D tex)
+        {
+            try
+            {
+                string folder = Path.Combine(Paths.GameRootPath, "CameraPictures");
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                string date = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                string fileName = date + "_" + playerHeldBy.playerUsername + ".png";
+                string path = Path.Combine(folder, fileName);
+
+                byte[] png = tex.EncodeToPNG();
+
+                File.WriteAllBytes(path, png);
+
+                Plugin.Logger.LogInfo("Picture saved: " + path);
+            }
+            catch (System.Exception e)
+            {
+                Plugin.Logger.LogError("Failed to save photo: " + e);
+            }
+        }
+        
         private Texture2D CapturePhotoFromView(Vector3 pos, Quaternion rot, float fov, int width, int height)
         {
             InitializePhotoCamera(width, height, Plugin.SillyThingsConfig.pictureResolutionDepth.Value);
@@ -551,24 +644,6 @@ namespace Silly_Things.Codes.CameraItem
             RenderTexture.ReleaseTemporary(rt);
 
             return tex;
-        }
-
-        // _____________SOUND_____________ \\
-        [ServerRpc]
-        private void SyncSoundsServerRpc(int id)
-        {
-            SyncSoundsClientRpc(id);
-        }
-
-        [ClientRpc]
-        public void SyncSoundsClientRpc(int idSound)
-        {
-            if (idSound == 0)
-                audio?.PlayOneShot(Plugin.Instance.SoundShutter);
-            else if (idSound == 2)
-                audio?.PlayOneShot(Plugin.Instance.SoundGear, 0.4f);
-            else if (idSound == 3)
-                audio?.PlayOneShot(Plugin.Instance.SoundSucess);
         }
     }
 }

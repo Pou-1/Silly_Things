@@ -1,3 +1,11 @@
+# 1.0.4
+
+-   **Added**
+    -   A config to make the camera limited by battery
+
+-   **Fix**
+    -   A Bug in the flash of the camera
+
 # 1.0.3
 
 -   **Added**

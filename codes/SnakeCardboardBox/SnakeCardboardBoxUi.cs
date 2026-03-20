@@ -26,10 +26,8 @@ namespace Silly_Things.codes.SnakeCardboardBox
 
             StartOfRound.Instance.localPlayerController.Crouch(true);
             StartOfRound.Instance.localPlayerController.movementAudio.Pause();
-
             if (box != null)
             {
-                box.SyncSoundsServerRpc(0);
                 box.PlayerHiddenByBox = true;
             }
 
@@ -46,7 +44,6 @@ namespace Silly_Things.codes.SnakeCardboardBox
             
             if (box != null && isUIOpen)
             {
-                box.SyncSoundsServerRpc(1);
                 box.PlayerHiddenByBox = false;
             }
 

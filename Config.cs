@@ -28,6 +28,8 @@ namespace Silly_Things
         public ConfigEntry<int> cameraLootRarity;
         public ConfigEntry<bool> cameraCanBeBuy;
         public ConfigEntry<int> cameraCost;
+        public ConfigEntry<bool> cameraHasBattery;
+        public ConfigEntry<int> cameraBatteryNumberOfPickBeforeZero;
 
         // _____________CAMERA MOB_____________ \\
         public ConfigEntry<string> monsterValues;
@@ -64,7 +66,7 @@ namespace Silly_Things
             MorphingCaseItemRarity = configFile.Bind(
                 "Morphing Case",
                 "MorphingCaseItemRarity",
-                15,
+                18,
                 "Rarity of the Morphing Case Item (higher = more common)."
             );
 
@@ -142,8 +144,22 @@ namespace Silly_Things
             cameraLootRarity = configFile.Bind(
                 "Camera",
                 "CameraLootRarity",
-                17,
+                20,
                 "Chance of looting a camera (1 very rare, 100 very common)"
+            );
+
+            cameraHasBattery = configFile.Bind(
+                "Camera",
+                "CameraHasBattery",
+                false,
+                "Does the camera has a battery ?"
+            );
+
+            cameraBatteryNumberOfPickBeforeZero = configFile.Bind(
+                "Camera",
+                "cameraBatteryNumberOfPickBeforeZero",
+                10,
+                "if the camera has battery, number of pics with a full charge"
             );
 
             cameraCanBeBuy = configFile.Bind(
@@ -266,33 +282,33 @@ namespace Silly_Things
         {
             string str = "";
 
-            str += "flowerman:180,";
-            str += "crawler:40,";
+            str += "flowerman:150,";
+            str += "crawler:30,";
             str += "hoarding bug:10,";
-            str += "centipede:30,";
-            str += "radmech:100,";
-            str += "bunker spider:50,";
+            str += "centipede:10,";
+            str += "radmech:150,";
+            str += "bunker spider:30,";
             str += "puffer:10,";
-            str += "jester:200,";
-            str += "blob:20,";
-            str += "girl:100,";
-            str += "spring:100,";
-            str += "nutcracker:200,";
-            str += "masked:30,";
-            str += "mouthdog:100,";
+            str += "jester:300,";
+            str += "blob:10,";
+            str += "girl:30,";
+            str += "spring:30,";
+            str += "nutcracker:100,";
+            str += "masked:10,";
+            str += "mouthdog:150,";
             str += "earth leviathan:120,";
-            str += "forestgiant:50,";
+            str += "forestgiant:80,";
             str += "baboon hawk:10,";
             str += "red locust bees:2,";
             str += "docile locust bees:0,";
             str += "manticoil:0,";
             str += "peeper:2,";
             str += "maneater:200,";
-            str += "locker:50,";
+            str += "locker:30,";
             str += "fiend:80,";
-            str += "butler:100,";
-            str += "kidnapper fox:200,";
-            str += "lasso man:50";
+            str += "butler:80,";
+            str += "kidnapper fox:150,";
+            str += "lasso man:30";
 
             return str;
         }
