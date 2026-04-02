@@ -4,18 +4,14 @@ using HarmonyLib;
 using LethalLib.Modules;
 using Silly_Things.codes.BountyContract;
 using Silly_Things.codes.CameraItem;
-using Silly_Things.codes.Helper;
 using Silly_Things.codes.MorphingCase;
 using Silly_Things.codes.SnakeCardboardBox;
 using Silly_Things.Codes.CameraItem;
 using Silly_Things.Codes.PortalGun;
 using Silly_Things.Codes.SailorMoonStick;
-using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Silly_Things
 {
@@ -24,7 +20,7 @@ namespace Silly_Things
     {
         const string GUID = "POUY.SILLY_THINGS";
         const string NAME = "Silly Things";
-        const string VERSION = "0.0.2";
+        const string VERSION = "1.0.5";
 
         public static Plugin Instance { get; private set; } = null!;
         internal static new ManualLogSource Logger { get; private set; } = null!;
@@ -100,8 +96,8 @@ namespace Silly_Things
             }
 
             LoadMorphingCase(bundle);
-            //LoadBountyContract(bundle);
             LoadCamera(bundle);
+            //LoadBountyContract(bundle);
             //LoadSnakeCardboardBox(bundle);
             //LoadSailorMoonStick(bundle);
             //LoadPortalGun(bundle);
@@ -116,6 +112,9 @@ namespace Silly_Things
             script.grabbable = true;
             script.grabbableToEnemies = true;
             script.itemProperties = item;
+
+            if (SillyThingsConfig.iconCustom.Value == false)
+                script.itemProperties.itemIcon = null;
 
             NetworkPrefabs.RegisterNetworkPrefab(item.spawnPrefab);
             Items.RegisterScrap(item, rarity, Levels.LevelTypes.All);
@@ -193,32 +192,7 @@ namespace Silly_Things
 
             PhotoItemPrefab = LoadItemTemplate<PhotoItem>(bundle, "Assets/LethalModding/Camera/PhotoItem/PhotoItem.asset", "Picture", 0).gameObject;
 
-            string monsters = SillyThingsConfig.monsterValues.Value;
-            string[] monsterValuePair = monsters.Split(",");
-
-            Helper.LogDebugMod("Display monsters and there values : ", "");
-            foreach (string mvp in monsterValuePair)
-            {
-                string[] m = mvp.Split(":");
-                if (m.Length == 2)
-                {
-                    try
-                    {
-                        int value = Int32.Parse(m[1]);
-                        var p = new HelperCamera.MonsterNameValue(m[0].ToLower(), value);
-                        HelperCamera.additionalMonsterValues.Add(p);
-                        Helper.LogDebugMod("--> " + p.Name + "  " + p.Value, "");
-                    }
-                    catch (FormatException)
-                    {
-                        Logger.LogError("Add monster config error! Scrap value isn't a number! ");
-                    }
-                }
-                else
-                {
-                    Logger.LogError("Error in config files ! Can't read entry: " + mvp + " (don't add \'|\' at the end)");
-                }
-            }
+            HelperCamera.LoadMonstersValues();
 
             photoShader = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/ShaderCamera.shader");
             photoShaderBlack = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/CameraVariantBlack/ShaderCameraBlack.shader");
@@ -226,26 +200,9 @@ namespace Silly_Things
             photoShaderBlue = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/CameraVariantBlue/ShaderCameraBlue.shader");
 
             if (SillyThingsConfig.DeletePictureOnLaunch.Value)
-                DeletePictures();
+                HelperCamera.DeletePictures();
         }
-
-        public void DeletePictures()
-        {
-            try
-            {
-                string folder = Path.Combine(Paths.GameRootPath, "CameraPictures");
-
-                if (!Directory.Exists(folder))
-                    return;
-
-                Directory.GetFiles(folder).ToList().ForEach(File.Delete);
-            }
-            catch (System.Exception e)
-            {
-                Logger.LogError("Failed to delete pictures" + e);
-            }
-        }
-
+        
         public void LoadSnakeCardboardBox(AssetBundle bundle)
         {
             BigCardboardBoxPrefab = bundle.LoadAsset<GameObject>("Assets/LethalModding/SnakeCardboardBox/BoxOnPlayer/CardBoardModel.prefab");

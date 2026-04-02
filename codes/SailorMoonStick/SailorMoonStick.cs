@@ -11,7 +11,7 @@ namespace Silly_Things.Codes.SailorMoonStick
         private AudioSource? audio;
         private bool itemIsActive = false;
 
-        private GameObject? currentAimFx;
+        //private GameObject? currentAimFx;
         private ParticleSystem[]? magicParticles;
         private GameObject? localVolumeObject;
         private float movementSpeedBase;

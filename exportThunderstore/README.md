@@ -1,10 +1,10 @@
 # SILLY THINGS
 
-This mod add some new **Items** to the game !
+This mod add a camera and a shapeshift (like among us) to the game !
 
 ## The Camera
 
-WARNING : The camera take pictures that are stored in the computer of the pplayer taking it, don't forget to delete the pics (or make the delete auto in the config) 
+WARNING : The camera take pictures are stored in the computer in the lethal folder (Lethal Company/CameraPictures) of the player taking it, don't forget to delete the pics (or make the delete auto in the config) 
 
 ![ezgif com-optimize](https://github.com/user-attachments/assets/e7fdb500-c3f5-44a7-b3eb-3574042a6013)
 
@@ -22,7 +22,6 @@ Allow you to capture the best moments of your game !
 
 Take a picture of a mob to get more value.
 
-
 ## The shapeshift Case
 
 ![LethalCompany-2026-03-031-30-35PM-ezgif com-speed](https://github.com/user-attachments/assets/213f00af-ea9f-44d7-8324-ccdc5f10b90a)
@@ -30,6 +29,10 @@ Take a picture of a mob to get more value.
 ![20260303134801_1](https://github.com/user-attachments/assets/3ece666a-7e2d-41b7-b68d-de22735020c4)
 
 Allow the player holding it to disguise as another player while holding it !
+
+## The Bounty Contract
+
+Allow the player holding it to have a bounty, a path to the bounty will be seenby this player, when the bounty is killed (whatever the reason) it dropped the bounty !
 
 ## The Cardboard of Metal Gear (NOT AVAILABLE, some bugs so i will fix it)
 

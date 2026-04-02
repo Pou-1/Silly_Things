@@ -1,3 +1,18 @@
+# 1.0.5
+
+-   **Added**
+    -   A count of enemys in the pictures
+    -   Loading of pictures when you load a game (they will load when you start the ship)
+    -   Loading of pictures for other when joining the game
+    -   New config to remove customs icons
+
+-   **Fix**
+    -   A Bug making the screen always showing
+    -   A Bug making the camera change color on reload of save
+    -   A Bug making the pictures far from wall on pin
+    -   A Bug making the pictures not attached to the ship
+    -   Me not using version good so now : (first number for big update, second for littles updates that change things and last for little fix that don't change the mod)
+
 # 1.0.4
 
 -   **Added**

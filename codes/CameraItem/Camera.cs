@@ -1,15 +1,13 @@
 ﻿﻿using BepInEx;
 using GameNetcodeStuff;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using Silly_Things.codes.BountyContract;
 using Silly_Things.codes.CameraItem;
 using Silly_Things.codes.Helper;
-using Steamworks.Ugc;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -22,11 +20,12 @@ namespace Silly_Things.Codes.CameraItem
         private Camera? itemCamera;
         private ParticleSystem? clickParticles;
         private List<EnemyAI> photographedEnemies = new List<EnemyAI>();
-        private float lastPhotoTime = -999f;
         private Light? flashLight;
-        Material? photoMat;
-        private static Camera photoCamera;
-        private static RenderTexture photoRenderTexture;
+        private Material? photoMat;
+        private float lastPhotoTime = -999f;
+        private static Camera? photoCamera;
+        private static RenderTexture? photoRenderTexture;
+        public NetworkVariable<int> UniqueIdNet = new NetworkVariable<int>();
 
         // _____________BATTERY_____________ \\
         public bool HasBattery => !itemProperties.requiresBattery || (insertedBattery != null && insertedBattery.charge > 0.01f);
@@ -51,7 +50,18 @@ namespace Silly_Things.Codes.CameraItem
             base.OnNetworkSpawn();
 
             photographedEnemies.Clear();
-            SyncScrapValueServerRpc(scrapValue);
+            SyncScrapValueServerRpc(0);
+
+            UniqueIdNet.OnValueChanged += OnUniqueIdChanged;
+
+            if (IsServer && UniqueIdNet.Value == 0)
+            {
+                UniqueIdNet.Value = Random.Range(1, 4);
+            }
+            else
+            {
+                UniqueIdNet.Value = UniqueIdNet.Value;
+            }
 
             flashLight = GetComponentInChildren<Light>(true);
             itemCamera = GetComponentInChildren<Camera>(true);
@@ -63,8 +73,7 @@ namespace Silly_Things.Codes.CameraItem
 
             if (IsServer)
             {
-                int variant = UnityEngine.Random.Range(0, 4);
-                SyncVariantClientRpc(variant);
+                SyncVariantClientRpc();
             }
 
             if (Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value && itemCamera != null && screenRenderer != null)
@@ -108,7 +117,23 @@ namespace Silly_Things.Codes.CameraItem
             {
                 itemProperties.requiresBattery = false;
             }
+
             UpdateUI();
+        }
+
+        private void OnUniqueIdChanged(int oldVal, int newVal)
+        {
+            UniqueIdNet.Value = newVal;
+        }
+
+        public override int GetItemDataToSave()
+        {
+            return UniqueIdNet.Value;
+        }
+
+        public override void LoadItemSaveData(int saveData)
+        {
+            UniqueIdNet.Value = saveData;
         }
 
         // _____________RENDER OVERRIDE_____________ \\
@@ -280,7 +305,7 @@ namespace Silly_Things.Codes.CameraItem
             if (!IsOwner)
                 return;
 
-            string[] allLines = { "Pic of Mob = $$ : [LMB]", "Zoom : [A]", "Unzoom : [E]" };
+            string[] allLines = { "Pic of Mob = $$ : [LMB]", "Zoom : [E]", "Unzoom : [A/Q]" };
 
             HUDManager.Instance.ClearControlTips();
             HUDManager.Instance.ChangeControlTipMultiple(allLines, holdingItem: true, itemProperties);
@@ -333,7 +358,9 @@ namespace Silly_Things.Codes.CameraItem
             var result = HelperCamera.GetVisibleEntities(playerHeldBy, monsters, players, itemCamera);
 
             string entitiesStr = HelperCamera.GetEntitiesNames(result.Item1, result.Item2);
-            SpawnPhotoServerRpc(entitiesStr, itemCamera.transform.position, itemCamera.transform.rotation, currentFov);
+
+            int uniqueId = Random.Range(1, int.MaxValue);
+            SpawnPhotoServerRpc(entitiesStr, itemCamera.transform.position, itemCamera.transform.rotation, currentFov, uniqueId);
 
             PlayFxServerRpc(3);
             StartCoroutine(BigFlashRoutine());
@@ -400,9 +427,9 @@ namespace Silly_Things.Codes.CameraItem
         }
 
         [ClientRpc]
-        private void SyncVariantClientRpc(int variantIndex)
+        private void SyncVariantClientRpc()
         {
-            ApplyVariant(variantIndex);
+            ApplyVariant();
         }
 
         [ServerRpc]
@@ -420,8 +447,9 @@ namespace Silly_Things.Codes.CameraItem
         }
 
         // _____________COLORS_____________ \\
-        private void ApplyVariant(int index)
+        private void ApplyVariant()
         {
+            int index = UniqueIdNet.Value;
             Transform gold = transform.Find("CameraGOLD");
             Transform blue = transform.Find("CameraBlue");
             Transform black = transform.Find("CameraBlack");
@@ -465,7 +493,7 @@ namespace Silly_Things.Codes.CameraItem
             Plugin.Logger.LogInfo($"Camera variant synced: {models[index].name}");
         }
 
-        // _____________CAMERA_____________ \\
+        // _____________PHOTO_____________ \\
         private static void InitializePhotoCamera(int width, int height, int depth)
         {
             if (photoCamera != null)
@@ -481,9 +509,8 @@ namespace Silly_Things.Codes.CameraItem
             photoRenderTexture = new RenderTexture(width, height, depth);
         }
 
-        // _____________PHOTO_____________ \\
         [ServerRpc(RequireOwnership = false)]
-        private void SpawnPhotoServerRpc(string entitiesStr, Vector3 camPos, Quaternion camRot, float fov, ServerRpcParams rpc = default)
+        private void SpawnPhotoServerRpc(string entitiesStr, Vector3 camPos, Quaternion camRot, float fov, int uniqueId, ServerRpcParams rpc = default)
         {
             PlayerControllerB player = StartOfRound.Instance.allPlayerScripts.FirstOrDefault(
                 p => p.OwnerClientId == rpc.Receive.SenderClientId
@@ -493,17 +520,20 @@ namespace Silly_Things.Codes.CameraItem
                 return;
 
             Item pictureItem = Plugin.Instance.PhotoItemPrefab.GetComponent<GrabbableObject>().itemProperties;
-
-            NetworkReference netRef = Helper.SpawnScrap(pictureItem, player.transform.position + player.transform.forward * 0.5f, 0);
+            NetworkReference netRef = Helper.SpawnScrap(pictureItem, player.transform.position + player.transform.forward * 0.5f, 5);
 
             if (netRef.netObjectRef.TryGet(out NetworkObject netObj))
             {
-                RequestPhotoClientRpc(netObj.NetworkObjectId, camPos, camRot, fov, rpc.Receive.SenderClientId, entitiesStr);
+                RequestPhotoClientRpc(netObj.NetworkObjectId, uniqueId, camPos, camRot, fov, rpc.Receive.SenderClientId, entitiesStr);
             }
         }
 
+        private const int MAX_CHUNK_SIZE = 900;
+
+        private Dictionary<ulong, List<byte>> photoChunks = new Dictionary<ulong, List<byte>>();
+
         [ClientRpc]
-        private void RequestPhotoClientRpc(ulong photoNetId, Vector3 camPos, Quaternion camRot, float fov, ulong photographerId, string entitiesStr)
+        private void RequestPhotoClientRpc(ulong photoNetId, int uniqueId, Vector3 camPos, Quaternion camRot, float fov, ulong photographerId, string entitiesStr)
         {
             if (NetworkManager.Singleton.LocalClientId != photographerId)
                 return;
@@ -511,36 +541,39 @@ namespace Silly_Things.Codes.CameraItem
             int width = Plugin.SillyThingsConfig.pictureResolutionWidth.Value;
             int height = Plugin.SillyThingsConfig.pictureResolutionHeight.Value;
 
-            Texture2D fullTex = CapturePhotoFromView(camPos, camRot, fov, width, height);
+            Texture2D? fullTex = CapturePhotoFromView(camPos, camRot, fov, width, height);
 
-            SavePhotoToDisk(fullTex);
+            if (fullTex != null)
+            {
+                HelperCamera.SavePhotoToDisk(fullTex, playerHeldBy.playerUsername);
 
-            Texture2D networkTex = DownscaleTexture(fullTex, 640, 360);
-            //Texture2D networkTex = DownscaleTexture(fullTex, 1024, 576);
+                if (photoMat != null)
+                {
+                    //Texture2D networkTex = HelperCamera.DownscaleTexture(fullTex, 640, 360, photoMat);
+                    Texture2D networkTex = HelperCamera.DownscaleTexture(fullTex, 1024, 576, photoMat);
 
-            byte[] jpg = networkTex.EncodeToJPG(50);
+                    byte[] jpg = networkTex.EncodeToJPG(75);
 
-            if (jpg != null)
-                SendPhotoToServerServerRpc(photoNetId, jpg, entitiesStr);
+                    if (jpg != null)
+                    {
+                        StartCoroutine(SendChunksCoroutine(photoNetId, uniqueId, jpg, entitiesStr));
+                    }
 
-            Object.Destroy(fullTex);
-            Object.Destroy(networkTex);
+                    Object.Destroy(networkTex);
+                }
+
+                Object.Destroy(fullTex);
+            }
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void SendPhotoToServerServerRpc(ulong photoNetId, byte[] jpg, string entitiesStr)
-        {
-            SendPhotoToClientsClientRpc(photoNetId, jpg, entitiesStr);
-        }
-
-        [ClientRpc]
-        private void SendPhotoToClientsClientRpc(ulong photoNetId, byte[] jpg, string entitiesStr)
+        private void ApplyPhoto(ulong photoNetId, int uniqueId, byte[] jpg, string entitiesStr)
         {
             if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(photoNetId))
                 return;
 
             NetworkObject netObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[photoNetId];
             PhotoItem photo = netObj.GetComponent<PhotoItem>();
+            photo.UniqueIdNet.Value = uniqueId;
 
             if (photo == null)
                 return;
@@ -551,36 +584,37 @@ namespace Silly_Things.Codes.CameraItem
             string dateStr = System.DateTime.Now.ToString("HH:mm");
 
             photo.SetPhoto(tex, dateStr, entitiesStr);
-        }
 
-        private void SavePhotoToDisk(Texture2D tex)
-        {
-            try
+            if (IsHost)
             {
-                string folder = Path.Combine(Paths.GameRootPath, "CameraPictures");
+                string saveName = GameNetworkManager.Instance.currentSaveFileName;
+                string folder = Path.Combine(Paths.GameRootPath, "TempPhotos", saveName);
 
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
-                string date = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-                string fileName = date + "_" + playerHeldBy.playerUsername + ".png";
-                string path = Path.Combine(folder, fileName);
+                string basePath = Path.Combine(folder, uniqueId.ToString());
 
-                byte[] png = tex.EncodeToPNG();
+                HelperCamera.SaveTemp(jpg, uniqueId);
 
-                File.WriteAllBytes(path, png);
+                PhotoMeta meta = new PhotoMeta
+                {
+                    id = uniqueId,
+                    date = dateStr,
+                    entities = entitiesStr
+                };
 
-                Plugin.Logger.LogInfo("Picture saved: " + path);
-            }
-            catch (System.Exception e)
-            {
-                Plugin.Logger.LogError("Failed to save photo: " + e);
+                string json = JsonConvert.SerializeObject(meta);
+                File.WriteAllText(basePath + ".json", json);
             }
         }
-        
-        private Texture2D CapturePhotoFromView(Vector3 pos, Quaternion rot, float fov, int width, int height)
+
+        private Texture2D? CapturePhotoFromView(Vector3 pos, Quaternion rot, float fov, int width, int height)
         {
             InitializePhotoCamera(width, height, Plugin.SillyThingsConfig.pictureResolutionDepth.Value);
+
+            if (photoCamera == null || photoRenderTexture == null)
+                return null;
 
             photoCamera.transform.position = pos;
             photoCamera.transform.rotation = rot;
@@ -623,27 +657,46 @@ namespace Silly_Things.Codes.CameraItem
             return tex;
         }
 
-        private Texture2D DownscaleTexture(Texture2D source, int width, int height)
+        // _____________PHOTO CHUNKS_____________ \\
+        private IEnumerator SendChunksCoroutine(ulong photoNetId, int uniqueId, byte[] data, string entitiesStr)
         {
-            RenderTexture rt = RenderTexture.GetTemporary(width, height);
+            int totalChunks = Mathf.CeilToInt((float)data.Length / MAX_CHUNK_SIZE);
 
-            if (photoMat != null)
-                Graphics.Blit(source, rt, photoMat);
-            else
-                Graphics.Blit(source, rt);
+            for (int i = 0; i < totalChunks; i++)
+            {
+                int start = i * MAX_CHUNK_SIZE;
+                int size = Mathf.Min(MAX_CHUNK_SIZE, data.Length - start);
 
-            RenderTexture current = RenderTexture.active;
-            RenderTexture.active = rt;
+                byte[] chunk = new byte[size];
+                System.Array.Copy(data, start, chunk, 0, size);
 
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGB24, false);
-            tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-            tex.Apply();
+                SendPhotoChunkServerRpc(photoNetId, uniqueId, chunk, i, totalChunks, entitiesStr);
 
-            RenderTexture.active = current;
+                yield return new WaitForSeconds(0.001f);
+            }
+        }
 
-            RenderTexture.ReleaseTemporary(rt);
+        [ServerRpc(RequireOwnership = false)]
+        private void SendPhotoChunkServerRpc(ulong photoNetId, int uniqueId, byte[] chunk, int index, int total, string entitiesStr)
+        {
+            SendPhotoChunkClientRpc(photoNetId, uniqueId, chunk, index, total, entitiesStr);
+        }
 
-            return tex;
+        [ClientRpc]
+        private void SendPhotoChunkClientRpc(ulong photoNetId, int uniqueId, byte[] chunk, int index, int total, string entitiesStr)
+        {
+            if (!photoChunks.ContainsKey(photoNetId))
+                photoChunks[photoNetId] = new List<byte>();
+
+            photoChunks[photoNetId].AddRange(chunk);
+
+            if (index == total - 1)
+            {
+                byte[] fullData = photoChunks[photoNetId].ToArray();
+                photoChunks.Remove(photoNetId);
+
+                ApplyPhoto(photoNetId, uniqueId, fullData, entitiesStr);
+            }
         }
     }
 }

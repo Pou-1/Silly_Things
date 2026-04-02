@@ -5,6 +5,7 @@ namespace Silly_Things
     public class Config
     {
         public ConfigEntry<bool> debugMode;
+        public ConfigEntry<bool> iconCustom;
 
         // _____________MORPHING CASE_____________ \\
         public ConfigEntry<int> MorphingCaseItemRarity;
@@ -57,11 +58,18 @@ namespace Silly_Things
             configFile.SaveOnConfigSet = false;
 
             debugMode = configFile.Bind(
-                "Debug",
+                "General",
                 "debugMode",
                 false,
                 "More log"
             );
+
+            iconCustom = configFile.Bind(
+               "General",
+               "IconCustom",
+               true,
+               "Whether or not you want custom icons"
+           );
 
             MorphingCaseItemRarity = configFile.Bind(
                 "Morphing Case",

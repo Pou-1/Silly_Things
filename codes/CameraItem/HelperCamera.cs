@@ -1,12 +1,23 @@
-﻿using GameNetcodeStuff;
+﻿using AsmResolver.PE.DotNet.Metadata;
+using BepInEx;
+using GameNetcodeStuff;
+using Newtonsoft.Json;
+using Silly_Things.Codes.CameraItem;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml;
+using Unity.Netcode;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace Silly_Things.codes.CameraItem
 {
     internal class HelperCamera
     {
         public static List<MonsterNameValue> additionalMonsterValues = new List<MonsterNameValue>();
+        public static bool canLoadPictures = true;
 
         // _____________MONSTER VALUE_____________ \\
         public struct MonsterNameValue
@@ -193,6 +204,37 @@ namespace Silly_Things.codes.CameraItem
         }
 
         // _____________SCORE_____________ \\
+        public static void LoadMonstersValues()
+        {
+            string monsters = Plugin.SillyThingsConfig.monsterValues.Value;
+            string[] monsterValuePair = monsters.Split(",");
+
+            Helper.Helper.LogDebugMod("Display monsters and there values : ", "");
+            foreach (string mvp in monsterValuePair)
+            {
+                string[] m = mvp.Split(":");
+                if (m.Length == 2)
+                {
+                    try
+                    {
+                        int value = Int32.Parse(m[1]);
+                        var p = new MonsterNameValue(m[0].ToLower(), value);
+                        additionalMonsterValues.Add(p);
+                        Helper.Helper.LogDebugMod("--> " + p.Name + "  " + p.Value, "");
+                    }
+                    catch (FormatException)
+                    {
+                        Plugin.Logger.LogError("Add monster config error! Scrap value isn't a number! ");
+                    }
+                }
+                else
+                {
+                    Plugin.Logger.LogError("Error in config files ! Can't read entry: " + mvp + " (don't add \'|\' at the end)");
+                }
+            }
+        }
+
+
         public static float GetMonstersScore(List<EnemyAI> monsters, List<EnemyAI> photographedEnemies)
         {
             Helper.Helper.LogDebugMod("GetMonstersScore", "");
@@ -242,25 +284,39 @@ namespace Silly_Things.codes.CameraItem
             if (MonsterIntoPicture.Count > 0 && PlayerIntoPicture.Count > 0)
                 return Names;
 
+            Dictionary<string, int> enemyCounts = new Dictionary<string, int>();
+
             foreach (EnemyAI enemy in MonsterIntoPicture)
             {
                 if (enemy != null && enemy.NetworkObject != null)
                 {
-                    Names += " " + enemy.enemyType.enemyName;
+                    string name = enemy.enemyType.enemyName;
+
+                    if (enemyCounts.ContainsKey(name))
+                        enemyCounts[name]++;
+                    else
+                        enemyCounts[name] = 1;
                 }
+            }
+
+            foreach (var kvp in enemyCounts)
+            {
+                if (kvp.Value > 1)
+                    Names += $"{kvp.Value} {kvp.Key}, ";
+                else
+                    Names += $"{kvp.Key}, ";
             }
 
             foreach (PlayerControllerB player in PlayerIntoPicture)
             {
                 if (player != null && player.isPlayerControlled)
                 {
-                    Names += " " + player.playerUsername;
+                    Names += player.playerUsername + ", ";
                 }
             }
 
             return Names;
         }
-
 
         // _____________REACT TO FLASH_____________ \\
         public static void ReactToFlash(PlayerControllerB owner, EnemyAI enemy, float distance, bool isInPicture)
@@ -382,6 +438,144 @@ namespace Silly_Things.codes.CameraItem
             }
             Plugin.Logger.LogWarning("Lucky! the monster didn't react to the flash (this time)");
             return false;
+        }
+
+        // _____________PICTURE_____________ \\
+        public static void DeletePictures()
+        {
+            try
+            {
+                string folder = Path.Combine(Paths.GameRootPath, "CameraPictures");
+
+                if (!Directory.Exists(folder))
+                    return;
+
+                Directory.GetFiles(folder).ToList().ForEach(File.Delete);
+            }
+            catch (System.Exception e)
+            {
+                Plugin.Logger.LogError("Failed to delete pictures" + e);
+            }
+        }
+
+        public static Texture2D DownscaleTexture(Texture2D source, int width, int height, Material photoMat)
+        {
+            RenderTexture rt = RenderTexture.GetTemporary(width, height);
+
+            if (photoMat != null)
+                Graphics.Blit(source, rt, photoMat);
+            else
+                Graphics.Blit(source, rt);
+
+            RenderTexture current = RenderTexture.active;
+            RenderTexture.active = rt;
+
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            tex.Apply();
+
+            RenderTexture.active = current;
+
+            RenderTexture.ReleaseTemporary(rt);
+
+            return tex;
+        }
+
+        public static void SavePhotoToDisk(Texture2D tex, string username)
+        {
+            try
+            {
+                string folder = Path.Combine(Paths.GameRootPath, "CameraPictures");
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                string date = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                string fileName = date + "_" + username + ".png";
+                string path = Path.Combine(folder, fileName);
+
+                byte[] png = tex.EncodeToPNG();
+
+                File.WriteAllBytes(path, png);
+
+                Plugin.Logger.LogInfo("Picture saved: " + path);
+            }
+            catch (System.Exception e)
+            {
+                Plugin.Logger.LogError("Failed to save photo: " + e);
+            }
+        }
+
+        public static void LoadAllPhotosFromDisk()
+        {
+            if (!NetworkManager.Singleton.IsHost)
+                return;
+
+            string saveName = GameNetworkManager.Instance.currentSaveFileName;
+            string folder = Path.Combine(Paths.GameRootPath, "TempPhotos", saveName);
+
+            if (!Directory.Exists(folder))
+                return;
+
+            foreach (PhotoItem photo in PhotoItem.Instances)
+            {
+                if (photo == null)
+                    continue;
+
+                if (photo.entityNamesText?.text != "Trans puppy girl")
+                    continue;
+
+                int uniqId = photo.UniqueIdNet.Value;
+                string filePath = Path.Combine(folder, uniqId + ".jpg");
+
+                if (!File.Exists(filePath))
+                    continue;
+
+                byte[] data = File.ReadAllBytes(filePath);
+
+                string basePath = Path.Combine(folder, uniqId.ToString());
+                string metaPath = basePath + ".json";
+                string date = "";
+                string entityNamesText = "";
+
+                if (File.Exists(metaPath))
+                {
+                    string json = File.ReadAllText(metaPath);
+                    PhotoMeta meta = JsonConvert.DeserializeObject<PhotoMeta>(json);
+
+                    date = meta.date;
+                    entityNamesText = meta.entities;
+                }
+
+                photo.ApplyPhotoToExistingItem(uniqId, data, date, entityNamesText);
+            }
+            Plugin.Logger.LogInfo("Loaded all photos from disk (HOST)");
+        }
+
+        // _____________PHOTO SAVE AND LOAD_____________ \\
+        public static void SaveTemp(byte[] jpg, int uniqId)
+        {
+            try
+            {
+                string folder = Path.Combine(Paths.GameRootPath, "TempPhotos");
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                string saveName = GameNetworkManager.Instance.currentSaveFileName;
+                string folderSave = Path.Combine(Paths.GameRootPath, "TempPhotos", saveName);
+
+                if (!Directory.Exists(folderSave))
+                    Directory.CreateDirectory(folderSave);
+
+                string path = Path.Combine(folderSave, uniqId + ".jpg");
+
+                File.WriteAllBytes(path, jpg);
+            }
+            catch (System.Exception e)
+            {
+                Plugin.Logger.LogError("Failed to save FULL photo: " + e);
+            }
         }
     }
 }

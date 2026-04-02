@@ -57,6 +57,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>dependencies\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Collections">
+      <HintPath>dependencies\Unity.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.InputSystem">
       <HintPath>dependencies\Unity.InputSystem.dll</HintPath>
     </Reference>

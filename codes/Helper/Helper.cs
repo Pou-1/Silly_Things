@@ -20,6 +20,7 @@ namespace Silly_Things.codes.Helper
             component.scrapValue = price;
             component.fallTime = 1f;
             component.hasHitGround = true;
+            component.itemProperties.isScrap = true;
             component.reachedFloorTarget = true;
             //component.scrapValue = (int)(UnityEngine.Random.Range(scrap.minValue, scrap.maxValue) * RoundManager.Instance.scrapValueMultiplier);
             component.NetworkObject.Spawn(true);

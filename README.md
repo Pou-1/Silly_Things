@@ -1,10 +1,10 @@
 # SILLY THINGS
 
-This mod add some new **Items** to the game !
+This mod add a camera and a shapeshift (like among us) to the game !
 
 ## The Camera
 
-WARNING : The camera take pictures that are stored in the computer of the pplayer taking it, don't forget to delete the pics (or make the delete auto in the config) 
+WARNING : The camera take pictures are stored in the computer in the lethal folder (Lethal Company/CameraPictures) of the player taking it, don't forget to delete the pics (or make the delete auto in the config) 
 
 ![ezgif com-optimize](https://github.com/user-attachments/assets/e7fdb500-c3f5-44a7-b3eb-3574042a6013)
 
@@ -30,16 +30,15 @@ Take a picture of a mob to get more value.
 
 Allow the player holding it to disguise as another player while holding it !
 
+## The Bounty Contract
+
+Allow the player holding it to have a bounty, a path to the bounty will be seenby this player, when the bounty is killed (whatever the reason) it dropped the bounty !
+
 ## The Cardboard of Metal Gear (NOT AVAILABLE, some bugs so i will fix it)
 
 ![20260303134613_1](https://github.com/user-attachments/assets/8205c75c-08e6-4ed1-b1b4-65e39fb46920)
 
-
 ![20260303134613_1](https://github.com/user-attachments/assets/00e782ed-5ea5-440c-bb21-16350daf1c21)
-
-
-
-
 
 ![20260303134724_1](https://github.com/user-attachments/assets/921513de-a5d7-4652-9d69-66bc97107782)
 
@@ -60,4 +59,5 @@ You can post some suggestions or issues in the mod release page in the as a [git
 # Credits
 
 -   Thanks **Zigzag** for help on the UI and the network !
+-   Thanks **Lethal Snap** with the code, that helped me with some issues on the camera
 -   Thanks to AlemanGame for the item model : https://sketchfab.com/3d-models/suitcase-8686e3b8564349fdbbdf166042655036
