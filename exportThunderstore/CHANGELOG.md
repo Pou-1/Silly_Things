@@ -5,6 +5,7 @@
     -   Loading of pictures when you load a game (they will load when you start the ship)
     -   Loading of pictures for other when joining the game
     -   New config to remove customs icons
+    -   New frames variants !
 
 -   **Fix**
     -   A Bug making the screen always showing
@@ -35,7 +36,6 @@
 
 -   **Added**
     -   The cardboard of metal gear into the game (allow player to hide from some enemies)
-
 
 # 1.0.0 Initial release
 

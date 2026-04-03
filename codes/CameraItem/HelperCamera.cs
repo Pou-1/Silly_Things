@@ -1,5 +1,4 @@
-﻿using AsmResolver.PE.DotNet.Metadata;
-using BepInEx;
+﻿using BepInEx;
 using GameNetcodeStuff;
 using Newtonsoft.Json;
 using Silly_Things.Codes.CameraItem;
@@ -7,16 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using Unity.Netcode;
 using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace Silly_Things.codes.CameraItem
 {
     internal class HelperCamera
     {
         public static List<MonsterNameValue> additionalMonsterValues = new List<MonsterNameValue>();
+        public static HashSet<ulong> clientsLoadedPhotos = new HashSet<ulong>();
         public static bool canLoadPictures = true;
 
         // _____________MONSTER VALUE_____________ \\
@@ -506,6 +504,7 @@ namespace Silly_Things.codes.CameraItem
             }
         }
 
+        // _____________PHOTO SAVE AND LOAD_____________ \\
         public static void LoadAllPhotosFromDisk()
         {
             if (!NetworkManager.Singleton.IsHost)
@@ -552,7 +551,6 @@ namespace Silly_Things.codes.CameraItem
             Plugin.Logger.LogInfo("Loaded all photos from disk (HOST)");
         }
 
-        // _____________PHOTO SAVE AND LOAD_____________ \\
         public static void SaveTemp(byte[] jpg, int uniqId)
         {
             try

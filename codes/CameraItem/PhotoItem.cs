@@ -7,7 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
-using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 namespace Silly_Things.Codes.CameraItem
@@ -16,6 +15,7 @@ namespace Silly_Things.Codes.CameraItem
     {
         // _____________SAVE / LOAD_____________ \\
         public static List<PhotoItem> Instances { get; set; } = new List<PhotoItem>();
+        private Dictionary<int, List<byte>> receivedPhotos = new Dictionary<int, List<byte>>();
         public NetworkVariable<int> UniqueIdNet = new NetworkVariable<int>();
         private const int MAX_CHUNK_SIZE = 900;
 
@@ -24,12 +24,11 @@ namespace Silly_Things.Codes.CameraItem
         public TextMeshPro? dateText; 
         public TextMeshPro? entityNamesText;
         public GameObject? imgPlaceholderGO;
+        private Renderer? frameCube;
+        private Renderer? frameCube2;
+        private Renderer? frameBase;
+        private Renderer? frameRounded;
 
-        // _____________PREVIEW_____________ \\
-        /*private GameObject? ghostPreview;
-        private Renderer? ghostRenderer;
-        private Material? ghostMat;
-        */
         // _____________PIN_____________ \\
         private bool isPin = false;
         private Vector3 pinPosition;
@@ -53,6 +52,11 @@ namespace Silly_Things.Codes.CameraItem
             base.OnNetworkSpawn();
             Instances.Add(this);
 
+            frameCube = transform.Find("frameCube/Cube.006")?.GetComponent<Renderer>();
+            frameCube2 = transform.Find("frameCube/Cube.011")?.GetComponent<Renderer>();
+            frameBase = transform.Find("frameBase")?.GetComponent<Renderer>();
+            frameRounded = transform.Find("frameRounded")?.GetComponent<Renderer>();
+
             UniqueIdNet.OnValueChanged += OnUniqueIdChanged;
 
             if (IsServer && UniqueIdNet.Value == 0)
@@ -70,37 +74,12 @@ namespace Silly_Things.Codes.CameraItem
             dateText = transform.Find("Date")?.GetComponent<TextMeshPro>();
             entityNamesText = transform.Find("EntityNames")?.GetComponent<TextMeshPro>();
             imgPlaceholderGO = transform.Find("ImgPlaceholder")?.gameObject;
-
-            /*ghostPreview = Instantiate(this.gameObject);
-            Destroy(ghostPreview.GetComponent<PhotoItem>());
-            Destroy(ghostPreview.GetComponent<NetworkObject>());
-            Destroy(ghostPreview.GetComponent<Rigidbody>());
-            Destroy(ghostPreview.GetComponent<Collider>());
-            ghostRenderer = ghostPreview.GetComponent<Renderer>();
-
-            Renderer[] renderers = ghostPreview.GetComponentsInChildren<Renderer>();
-            foreach (var r in renderers)
-            {
-                Material mat = new Material(r.material);
-                if (mat.HasProperty("_Color"))
-                {
-                    Color c = mat.color;
-                    c.a = 0.3f;
-                    mat.color = c;
-                }
-                mat.SetInt("_ZWrite", 0);
-                mat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
-                r.material = mat;
-            }
-
-            ghostPreview.transform.localScale = transform.localScale;
-            ghostPreview.layer = 0;
-            ghostPreview.SetActive(false);*/
         }
 
         private void OnUniqueIdChanged(int oldVal, int newVal)
         {
             UniqueIdNet.Value = newVal;
+            SyncVariantClientRpc();
         }
 
         public override int GetItemDataToSave()
@@ -122,39 +101,6 @@ namespace Silly_Things.Codes.CameraItem
                 transform.localPosition = pinPosition;
                 transform.localRotation = pinRotation;
             }
-
-            /*if (playerHeldBy != null && !isPocketed && IsOwner && !isPin && ghostPreview != null && ghostMat != null)
-            {
-                Camera cam = playerHeldBy.gameplayCamera;
-
-                if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, 2f, pinLayerMask))
-                {
-                    if (hit.transform.GetComponent<PlayerControllerB>() != null)
-                        return;
-
-                    if (hit.transform.GetComponent<EnemyAI>() != null)
-                        return;
-
-                    float offset = 0.01f;
-                    Vector3 pos = hit.point + hit.normal * offset;
-                    Quaternion rot = Quaternion.LookRotation(-hit.normal);
-                    rot *= Quaternion.Euler(0, 90f, 0f);
-
-                    ghostPreview.transform.position = pos;
-                    ghostPreview.transform.rotation = rot;
-                    ghostPreview.transform.localScale = Vector3.one * 0.05f;
-                    ghostMat.color = new Color(0f, 1f, 0f, 0.3f);
-                    ghostPreview.SetActive(true);
-                }
-                else
-                {
-                    ghostPreview.SetActive(false);
-                }
-            }
-            else
-            {
-                ghostPreview?.SetActive(false);
-            }*/
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
@@ -189,9 +135,6 @@ namespace Silly_Things.Codes.CameraItem
         public override void GrabItem()
         {
             base.GrabItem();
-
-            //ghostPreview?.SetActive(false);
-
             UnPin();
         }
 
@@ -201,7 +144,60 @@ namespace Silly_Things.Codes.CameraItem
             Instances.Remove(this);
         }
 
-        // _____________OTHER_____________ \\
+        private void ApplyFrameVariant()
+        {
+            frameCube?.gameObject.SetActive(false);
+            frameCube2?.gameObject.SetActive(false);
+            frameBase?.gameObject.SetActive(false);
+            frameRounded?.gameObject.SetActive(false);
+
+            int index = UniqueIdNet.Value % 3;
+
+            if (index == 0 && frameCube != null && frameCube2 != null)
+            {
+                frameCube.gameObject.SetActive(true);
+                frameCube2.gameObject.SetActive(true);
+                ApplyPastelColor(frameCube);
+                ApplyPastelColor(frameCube2);
+            }
+            else if (index == 1 && frameBase != null)
+            {
+                frameBase.gameObject.SetActive(true);
+                ApplyPastelColor(frameBase);
+            }
+            else if (index == 2 && frameRounded != null)
+            {
+                frameRounded.gameObject.SetActive(true);
+                ApplyPastelColor(frameRounded);
+            }
+        }
+
+        private void ApplyPastelColor(Renderer renderer)
+        {
+            if (renderer == null)
+                return;
+
+            float hue = (UniqueIdNet.Value * 0.618f) % 1f;
+            float saturation = Random.Range(0.2f, 0.4f);
+            float value = Random.Range(0.8f, 1f);
+
+            Color pastel = Color.HSVToRGB(hue, saturation, value);
+
+            Material mat = new Material(renderer.material)
+            {
+                color = pastel
+            };
+
+            renderer.material = mat;
+        }
+
+        [ClientRpc]
+        private void SyncVariantClientRpc()
+        {
+            ApplyFrameVariant();
+        }
+
+        // _____________PIN_____________ \\
         [ServerRpc]
         private void TryPinPhotoServerRpc(Vector3 hitPoint, Vector3 normal, ulong parentNetId)
         {
@@ -275,6 +271,7 @@ namespace Silly_Things.Codes.CameraItem
                 entityNamesText.text = entityNames;
         }
 
+        // _____________MONSTER SCORE_____________ \\
         public static float GetMonsterScore(string monsterName)
         {
             Helper.LogDebugMod("GetMonsterScore", "");
@@ -316,7 +313,7 @@ namespace Silly_Things.Codes.CameraItem
             string saveName = GameNetworkManager.Instance.currentSaveFileName;
             string folder = Path.Combine(Paths.GameRootPath, "TempPhotos", saveName);
 
-            string filePath = Path.Combine(folder, uniqueId + ".png");
+            string filePath = Path.Combine(folder, uniqueId + ".jpg");
 
             if (!File.Exists(filePath))
                 return;
@@ -332,11 +329,15 @@ namespace Silly_Things.Codes.CameraItem
             if (File.Exists(metaPath))
             {
                 string json = File.ReadAllText(metaPath);
-                PhotoMeta? meta = JsonConvert.DeserializeObject<PhotoMeta>(json);
+                PhotoMeta meta = JsonConvert.DeserializeObject<PhotoMeta>(json);
 
-                date = meta.date;
-                entityNames = meta.entities;
+                if (meta != null)
+                {
+                    date = meta.date;
+                    entityNames = meta.entities;
+                }
             }
+
             StartCoroutine(SendChunksToClientCoroutine(clientId, uniqueId, data, date, entityNames));
         }
 
@@ -352,34 +353,40 @@ namespace Silly_Things.Codes.CameraItem
                 byte[] chunk = new byte[size];
                 System.Array.Copy(data, start, chunk, 0, size);
 
-                SendPhotoChunkToClientClientRpc(clientId, uniqId, chunk, i, totalChunks, date, entityNames);
+                var rpcParams = new ClientRpcParams
+                {
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds = new ulong[] { clientId }
+                    }
+                };
+
+                SendPhotoChunkToClientClientRpc(uniqId, chunk, i, totalChunks, date, entityNames, rpcParams);
 
                 yield return null;
             }
         }
 
         [ClientRpc]
-        private void SendPhotoChunkToClientClientRpc(ulong targetClientId, int uniqId, byte[] chunk, int index, int total, string date, string entityNames, ClientRpcParams rpcParams = default)
+        private void SendPhotoChunkToClientClientRpc(int uniqId, byte[] chunk, int index, int total, string date, string entityNames, ClientRpcParams rpcParams = default)
         {
-            if (NetworkManager.Singleton.LocalClientId != targetClientId)
+            if (NetworkManager.Singleton.IsHost)
                 return;
 
             ReceiveChunk(uniqId, chunk, index, total, date, entityNames);
         }
 
-        private Dictionary<string, List<byte>> receivedPhotos = new Dictionary<string, List<byte>>();
-
         private void ReceiveChunk(int uniqId, byte[] chunk, int index, int total, string date, string entityNames)
         {
-            if (!receivedPhotos.ContainsKey(uniqId.ToString()))
-                receivedPhotos[uniqId.ToString()] = new List<byte>();
+            if (!receivedPhotos.ContainsKey(uniqId))
+                receivedPhotos[uniqId] = new List<byte>();
 
-            receivedPhotos[uniqId.ToString()].AddRange(chunk);
+            receivedPhotos[uniqId].AddRange(chunk);
 
             if (index == total - 1)
             {
-                byte[] fullData = receivedPhotos[uniqId.ToString()].ToArray();
-                receivedPhotos.Remove(uniqId.ToString());
+                byte[] fullData = receivedPhotos[uniqId].ToArray();
+                receivedPhotos.Remove(uniqId);
 
                 ApplyPhotoToExistingItem(uniqId, fullData, date, entityNames);
             }
@@ -389,11 +396,6 @@ namespace Silly_Things.Codes.CameraItem
         {
             Texture2D tex = new Texture2D(2, 2);
             tex.LoadImage(data);
-
-            Plugin.Logger.LogError("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            Plugin.Logger.LogError("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            Plugin.Logger.LogError("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            Plugin.Logger.LogError("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
             foreach (var obj in NetworkManager.Singleton.SpawnManager.SpawnedObjects.Values)
             {
@@ -405,6 +407,7 @@ namespace Silly_Things.Codes.CameraItem
                     break;
                 }
             }
+            ApplyFrameVariant();
         }
     }
 }

@@ -16,16 +16,20 @@ namespace Silly_Things.Codes.CameraItem
 {
     public class CameraItem : PhysicsProp
     {
-        private AudioSource? audio;
-        private Camera? itemCamera;
-        private ParticleSystem? clickParticles;
-        private List<EnemyAI> photographedEnemies = new List<EnemyAI>();
-        private Light? flashLight;
-        private Material? photoMat;
         private float lastPhotoTime = -999f;
-        private static Camera? photoCamera;
-        private static RenderTexture? photoRenderTexture;
+        private const int MAX_CHUNK_SIZE = 900;
+        private List<EnemyAI> photographedEnemies = new List<EnemyAI>();
         public NetworkVariable<int> UniqueIdNet = new NetworkVariable<int>();
+        private Dictionary<ulong, List<byte>> photoChunks = new Dictionary<ulong, List<byte>>();
+
+        // _____________OBJECT_____________ \\
+        private static RenderTexture? photoRenderTexture;
+        private static Camera? photoCamera;
+        private Light? flashLight;
+        private ParticleSystem? clickParticles;
+        private Camera? itemCamera;
+        private Material? photoMat;
+        private AudioSource? audio;
 
         // _____________BATTERY_____________ \\
         public bool HasBattery => !itemProperties.requiresBattery || (insertedBattery != null && insertedBattery.charge > 0.01f);
@@ -121,11 +125,6 @@ namespace Silly_Things.Codes.CameraItem
             UpdateUI();
         }
 
-        private void OnUniqueIdChanged(int oldVal, int newVal)
-        {
-            UniqueIdNet.Value = newVal;
-        }
-
         public override int GetItemDataToSave()
         {
             return UniqueIdNet.Value;
@@ -136,7 +135,6 @@ namespace Silly_Things.Codes.CameraItem
             UniqueIdNet.Value = saveData;
         }
 
-        // _____________RENDER OVERRIDE_____________ \\
         public override void LateUpdate()
         {
             base.LateUpdate();
@@ -154,19 +152,6 @@ namespace Silly_Things.Codes.CameraItem
             itemCamera.Render();
         }
 
-        public bool UseBatteryAndHasBattery()
-        {
-            if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
-            {
-                if (HasBattery)
-                    return true;
-                else
-                    return false;
-            } else
-                return true;
-        }
-
-        // _____________ZOOM OVERRIDE_____________ \\
         public override void ItemInteractLeftRight(bool right)
         {
             base.ItemInteractLeftRight(right);
@@ -192,7 +177,6 @@ namespace Silly_Things.Codes.CameraItem
             }
         }
 
-        // _____________TAKE PICTURE OVERRIDE_____________ \\
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
@@ -232,34 +216,6 @@ namespace Silly_Things.Codes.CameraItem
                 insertedBattery.charge = Mathf.Clamp01(insertedBattery.charge - batteryUsagePerShot);
             }
             UpdateUI();
-        }
-
-        public void UpdateUI()
-        {
-            if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
-            {
-                if (screenRenderer != null && valueText != null)
-                {
-                    if (!HasBattery && Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value)
-                        screenRenderer.enabled = false;
-                    else if(HasBattery && Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value)
-                        screenRenderer.enabled = true;
-
-                    int shotsLeft = Mathf.CeilToInt(insertedBattery.charge / batteryUsagePerShot);
-                    valueText.text = scrapValue.ToString() + "$ (" + shotsLeft + ")";
-                }
-            }
-            else
-            {
-                if (valueText != null)
-                    valueText.text = scrapValue.ToString() + "$";
-            }
-
-            if (playerHeldBy == null && screenRenderer != null && itemCamera != null)
-            {
-                screenRenderer.enabled = false;
-                itemCamera.enabled = false;
-            }
         }
 
         public override void EquipItem()
@@ -315,6 +271,39 @@ namespace Silly_Things.Codes.CameraItem
         {
             base.OnDestroy();
             screenTexture?.Release();
+        }
+
+        public void UpdateUI()
+        {
+            if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
+            {
+                if (screenRenderer != null && valueText != null)
+                {
+                    if (!HasBattery && Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value)
+                        screenRenderer.enabled = false;
+                    else if(HasBattery && Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value)
+                        screenRenderer.enabled = true;
+
+                    int shotsLeft = Mathf.CeilToInt(insertedBattery.charge / batteryUsagePerShot);
+                    valueText.text = scrapValue.ToString() + "$ (" + shotsLeft + ")";
+                }
+            }
+            else
+            {
+                if (valueText != null)
+                    valueText.text = scrapValue.ToString() + "$";
+            }
+
+            if (playerHeldBy == null && screenRenderer != null && itemCamera != null)
+            {
+                screenRenderer.enabled = false;
+                itemCamera.enabled = false;
+            }
+        }
+
+        private void OnUniqueIdChanged(int oldVal, int newVal)
+        {
+            UniqueIdNet.Value = newVal;
         }
 
         // _____________COROUTINE_____________ \\
@@ -447,6 +436,19 @@ namespace Silly_Things.Codes.CameraItem
         }
 
         // _____________COLORS_____________ \\
+        public bool UseBatteryAndHasBattery()
+        {
+            if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
+            {
+                if (HasBattery)
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return true;
+        }
+
         private void ApplyVariant()
         {
             int index = UniqueIdNet.Value;
@@ -527,10 +529,6 @@ namespace Silly_Things.Codes.CameraItem
                 RequestPhotoClientRpc(netObj.NetworkObjectId, uniqueId, camPos, camRot, fov, rpc.Receive.SenderClientId, entitiesStr);
             }
         }
-
-        private const int MAX_CHUNK_SIZE = 900;
-
-        private Dictionary<ulong, List<byte>> photoChunks = new Dictionary<ulong, List<byte>>();
 
         [ClientRpc]
         private void RequestPhotoClientRpc(ulong photoNetId, int uniqueId, Vector3 camPos, Quaternion camRot, float fov, ulong photographerId, string entitiesStr)

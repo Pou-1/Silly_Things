@@ -1,9 +1,7 @@
-﻿using BepInEx;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
 using Silly_Things.codes.CameraItem;
 using Silly_Things.Codes.CameraItem;
-using System.IO;
 using Unity.Netcode;
 
 namespace Silly_Things.codes.patches
@@ -73,54 +71,34 @@ namespace Silly_Things.codes.patches
             }
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("OnClientConnect")]
         public static void SendPicturesClient(ulong clientId)
         {
-            if (!NetworkManager.Singleton.IsHost)
+            if (!NetworkManager.Singleton.IsHost || HelperCamera.clientsLoadedPhotos.Contains(clientId))
                 return;
 
-            if (HelperCamera.canLoadPictures)
-            {
-                HelperCamera.LoadAllPhotosFromDisk();
-                HelperCamera.canLoadPictures = false;
-            }
-
-            string saveName = GameNetworkManager.Instance.currentSaveFileName;
-            string folder = Path.Combine(Paths.GameRootPath, "TempPhotos", saveName);
-            Plugin.Logger.LogError($"SEARCH to photo folder: {folder}");
-
-            if (!Directory.Exists(folder))
-                return;
+            HelperCamera.clientsLoadedPhotos.Add(clientId);
 
             foreach (PhotoItem photo in PhotoItem.Instances)
             {
                 if (photo == null)
                     continue;
 
-                string filename = Path.Combine(folder, photo.UniqueIdNet.Value + ".jpg");
-                Plugin.Logger.LogError(filename);
-
-                if (!File.Exists(filename))
-                    continue;
-
-                Plugin.Logger.LogError(filename + "GOOD !!!");
-
                 photo.SendPicturesHostToClient(clientId, photo.UniqueIdNet.Value);
             }
 
-            Plugin.Logger.LogError("SendPicturesClient");
+            Plugin.Logger.LogError($"Sent photos to client {clientId}");
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("Start")]
         public static void PicturesCanBeLoaded()
         {
-            if (!NetworkManager.Singleton.IsHost || HelperCamera.canLoadPictures)
+            if (HelperCamera.canLoadPictures == false)
                 return;
 
             Plugin.Logger.LogError("Start");
-
             HelperCamera.canLoadPictures = true;
         }
 
@@ -128,13 +106,15 @@ namespace Silly_Things.codes.patches
         [HarmonyPatch("OnShipLandedMiscEvents")]
         public static void LoadPhotosOnGameStart()
         {
-            if (!NetworkManager.Singleton.IsHost || HelperCamera.canLoadPictures == false)
+            if (!NetworkManager.Singleton.IsHost)
                 return;
 
-            Plugin.Logger.LogError("LoadPhotosOnGameStart");
-
-            HelperCamera.LoadAllPhotosFromDisk();
-            HelperCamera.canLoadPictures = false;
+            if (HelperCamera.canLoadPictures)
+            {
+                Plugin.Logger.LogError("LoadPhotosOnGameStart");
+                HelperCamera.LoadAllPhotosFromDisk();
+                HelperCamera.canLoadPictures = false;
+            }
         }
     }
 }
