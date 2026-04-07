@@ -202,6 +202,7 @@ namespace Silly_Things.Codes.CameraItem
             {
                 foreach (EnemyAI enemy in monsters)
                 {
+                    Plugin.Logger.LogError("enemy photographed : " + enemy.enemyType.enemyName.ToString());
                     if (!photographedEnemies.Contains(enemy))
                         photographedEnemies.Add(enemy);
                 }
@@ -273,7 +274,7 @@ namespace Silly_Things.Codes.CameraItem
             screenTexture?.Release();
         }
 
-        public void UpdateUI()
+        public void UpdateUI(string additionalNumber = "")
         {
             if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
             {
@@ -285,13 +286,13 @@ namespace Silly_Things.Codes.CameraItem
                         screenRenderer.enabled = true;
 
                     int shotsLeft = Mathf.CeilToInt(insertedBattery.charge / batteryUsagePerShot);
-                    valueText.text = scrapValue.ToString() + "$ (" + shotsLeft + ")";
+                    valueText.text = scrapValue.ToString() + additionalNumber + "$ (" + shotsLeft + ")";
                 }
             }
             else
             {
                 if (valueText != null)
-                    valueText.text = scrapValue.ToString() + "$";
+                    valueText.text = scrapValue.ToString() + additionalNumber + "$";
             }
 
             if (playerHeldBy == null && screenRenderer != null && itemCamera != null)
@@ -334,8 +335,8 @@ namespace Silly_Things.Codes.CameraItem
 
             itemCamera.cullingMask = playerHeldBy.gameplayCamera.cullingMask;
             flashLight.color = Color.white;
-            flashLight.intensity = 65f;
-            flashLight.range = 65f;
+            flashLight.intensity = 250f;
+            flashLight.range = 80f;
             flashLight.spotAngle = 125f;
             flashLight.enabled = true;
 
@@ -376,13 +377,13 @@ namespace Silly_Things.Codes.CameraItem
             Color original = cubeSuccessRenderer.material.color;
             cubeSuccessRenderer.material.color = Color.green;
 
-            UpdateUI();
+            UpdateUI(" + " + valueToAdd);
 
             yield return new WaitForSeconds(duration);
 
             cubeSuccessRenderer.material.color = original;
 
-            UpdateUI();
+            UpdateUI(" + " + valueToAdd);
 
             SyncScrapValueServerRpc(valueToAdd);
         }

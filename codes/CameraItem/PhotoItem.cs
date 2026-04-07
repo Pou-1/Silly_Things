@@ -153,6 +153,8 @@ namespace Silly_Things.Codes.CameraItem
 
             int index = UniqueIdNet.Value % 3;
 
+            Plugin.Logger.LogError(UniqueIdNet.Value%3);
+
             if (index == 0 && frameCube != null && frameCube2 != null)
             {
                 frameCube.gameObject.SetActive(true);

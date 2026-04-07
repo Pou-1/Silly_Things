@@ -298,12 +298,12 @@ namespace Silly_Things
             str += "bunker spider:30,";
             str += "puffer:10,";
             str += "jester:300,";
-            str += "blob:10,";
-            str += "girl:30,";
+            str += "hygrodere:10,";
+            str += "ghost girl:30,";
             str += "spring:30,";
             str += "nutcracker:100,";
             str += "masked:10,";
-            str += "mouthdog:150,";
+            str += "mouthdog:100,";
             str += "earth leviathan:120,";
             str += "forestgiant:80,";
             str += "baboon hawk:10,";
@@ -314,9 +314,14 @@ namespace Silly_Things
             str += "maneater:200,";
             str += "locker:30,";
             str += "fiend:80,";
+            str += "barber:150,";
+            str += "giant sapsucker:150,";
             str += "butler:80,";
             str += "kidnapper fox:150,";
-            str += "lasso man:30";
+            str += "lasso man:30,";
+            str += "cadaver bloom:100,";
+            str += "feiopar:150,";
+            str += "backwater gunkfish:20";
 
             return str;
         }
@@ -338,7 +343,6 @@ namespace Silly_Things
             str += "mouthdog:300:6,";
             str += "forestgiant:200:5,";
             str += "kidnapper fox:250:6,";
-            str += "lasso man:200:5";
 
             return str;
         }

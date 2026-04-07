@@ -23,7 +23,7 @@ namespace Silly_Things.codes.patches
             return true;
         }*/
 
-        [HarmonyPrefix]
+        /*[HarmonyPrefix]
         [HarmonyPatch("ShipLeave")]
         public static void StopSearchBounty()
         {
@@ -69,7 +69,7 @@ namespace Silly_Things.codes.patches
                     }
                 }
             }
-        }
+        }*/
 
         [HarmonyPostfix]
         [HarmonyPatch("OnClientConnect")]
@@ -88,7 +88,7 @@ namespace Silly_Things.codes.patches
                 photo.SendPicturesHostToClient(clientId, photo.UniqueIdNet.Value);
             }
 
-            Plugin.Logger.LogError($"Sent photos to client {clientId}");
+            //Plugin.Logger.LogError($"Sent photos to client {clientId}");
         }
 
         [HarmonyPostfix]
@@ -98,7 +98,7 @@ namespace Silly_Things.codes.patches
             if (HelperCamera.canLoadPictures == false)
                 return;
 
-            Plugin.Logger.LogError("Start");
+            //Plugin.Logger.LogError("Start");
             HelperCamera.canLoadPictures = true;
         }
 
@@ -111,7 +111,7 @@ namespace Silly_Things.codes.patches
 
             if (HelperCamera.canLoadPictures)
             {
-                Plugin.Logger.LogError("LoadPhotosOnGameStart");
+                //Plugin.Logger.LogError("LoadPhotosOnGameStart");
                 HelperCamera.LoadAllPhotosFromDisk();
                 HelperCamera.canLoadPictures = false;
             }
