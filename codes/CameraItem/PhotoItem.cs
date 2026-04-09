@@ -258,13 +258,12 @@ namespace Silly_Things.Codes.CameraItem
             if (photoRenderer != null)
             {
                 imgPlaceholderGO?.SetActive(false);
+
                 Material mat = new Material(photoRenderer.material)
                 {
                     mainTexture = texture
                 };
 
-                mat.SetFloat("_VignetteIntensity", 0.3f);
-                mat.SetFloat("_BlurStrength", 0.5f);
                 photoRenderer.material = mat;
             }
             if (dateText != null)

@@ -203,6 +203,8 @@ namespace Silly_Things.Codes.CameraItem
                 foreach (EnemyAI enemy in monsters)
                 {
                     Plugin.Logger.LogError("enemy photographed : " + enemy.enemyType.enemyName.ToString());
+                    Plugin.Logger.LogError("enemy photographed : " + enemy.enemyType.enemyName.ToString());
+                    Plugin.Logger.LogError("enemy photographed : " + enemy.enemyType.enemyName.ToString());
                     if (!photographedEnemies.Contains(enemy))
                         photographedEnemies.Add(enemy);
                 }
@@ -579,6 +581,8 @@ namespace Silly_Things.Codes.CameraItem
 
             Texture2D tex = new Texture2D(2, 2);
             tex.LoadImage(jpg);
+
+            tex.Apply(false, false);
 
             string dateStr = System.DateTime.Now.ToString("HH:mm");
 
