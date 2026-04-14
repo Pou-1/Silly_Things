@@ -5,6 +5,7 @@ This mod add a camera and a shapeshift (like among us) to the game !
 ## The Camera
 
 WARNING : The camera take pictures are stored in the computer in the lethal folder (Lethal Company/CameraPictures) of the player taking it, don't forget to delete the pics (or make the delete auto in the config) 
+WARNING : The host store pictures of the game in jpg in the lethal folder (Lethal Company/TempSillyThings) don't forget to remove them when u it take too many space (i will make a maj so it is remove on save end or remove but idk how for the moment)
 
 ![ezgif com-optimize](https://github.com/user-attachments/assets/e7fdb500-c3f5-44a7-b3eb-3574042a6013)
 

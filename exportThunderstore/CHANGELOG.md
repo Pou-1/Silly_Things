@@ -1,4 +1,4 @@
-# 1.0.5
+# 2.0.0
 
 -   **Added**
     -   A count of enemys in the pictures

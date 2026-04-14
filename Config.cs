@@ -161,7 +161,7 @@ namespace Silly_Things
             cameraLootRarity = configFile.Bind(
                 "Camera",
                 "CameraLootRarity",
-                200,
+                20,
                 "Chance of looting a camera (1 very rare, 100 very common)"
             );
 

@@ -152,7 +152,6 @@ namespace Silly_Things.Codes.CameraItem
             frameRounded?.gameObject.SetActive(false);
 
             int index = UniqueIdNet.Value % 3;
-            Plugin.Logger.LogError("ApplyFrameVariant");
             if (index == 0 && frameCube != null && frameCube2 != null)
             {
                 frameCube.gameObject.SetActive(true);
@@ -170,7 +169,6 @@ namespace Silly_Things.Codes.CameraItem
                 frameRounded.gameObject.SetActive(true);
                 ApplyPastelColor(frameRounded);
             }
-            Plugin.Logger.LogError("ApplyFrameVariant END");
         }
 
         private void ApplyPastelColor(Renderer renderer)

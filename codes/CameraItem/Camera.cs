@@ -55,6 +55,7 @@ namespace Silly_Things.Codes.CameraItem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
             Instances.Add(this);
 
             photographedEnemies.Clear();
@@ -204,8 +205,6 @@ namespace Silly_Things.Codes.CameraItem
 
             if (!IsOwner)
                 return;
-
-            Plugin.Logger.LogError(IsOwner);
 
             if (!UseBatteryAndHasBattery())
                 return;
