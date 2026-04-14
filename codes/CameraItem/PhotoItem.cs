@@ -63,9 +63,10 @@ namespace Silly_Things.Codes.CameraItem
             {
                 UniqueIdNet.Value = Random.Range(1, int.MaxValue);
             }
-            else
+
+            if (IsClient)
             {
-                UniqueIdNet.Value = UniqueIdNet.Value;
+                ApplyFrameVariant();
             }
 
             pinLayerMask = LayerMask.GetMask(allowedLayers);
@@ -78,8 +79,7 @@ namespace Silly_Things.Codes.CameraItem
 
         private void OnUniqueIdChanged(int oldVal, int newVal)
         {
-            UniqueIdNet.Value = newVal;
-            SyncVariantClientRpc();
+            ApplyFrameVariant();
         }
 
         public override int GetItemDataToSave()
@@ -152,9 +152,7 @@ namespace Silly_Things.Codes.CameraItem
             frameRounded?.gameObject.SetActive(false);
 
             int index = UniqueIdNet.Value % 3;
-
-            Plugin.Logger.LogError(UniqueIdNet.Value%3);
-
+            Plugin.Logger.LogError("ApplyFrameVariant");
             if (index == 0 && frameCube != null && frameCube2 != null)
             {
                 frameCube.gameObject.SetActive(true);
@@ -172,6 +170,7 @@ namespace Silly_Things.Codes.CameraItem
                 frameRounded.gameObject.SetActive(true);
                 ApplyPastelColor(frameRounded);
             }
+            Plugin.Logger.LogError("ApplyFrameVariant END");
         }
 
         private void ApplyPastelColor(Renderer renderer)
@@ -180,8 +179,10 @@ namespace Silly_Things.Codes.CameraItem
                 return;
 
             float hue = (UniqueIdNet.Value * 0.618f) % 1f;
-            float saturation = Random.Range(0.2f, 0.4f);
-            float value = Random.Range(0.8f, 1f);
+            float seed = UniqueIdNet.Value * 0.123f;
+
+            float saturation = Mathf.Lerp(0.2f, 0.4f, Mathf.Abs(Mathf.Sin(seed)));
+            float value = Mathf.Lerp(0.8f, 1f, Mathf.Abs(Mathf.Cos(seed)));
 
             Color pastel = Color.HSVToRGB(hue, saturation, value);
 
@@ -191,12 +192,6 @@ namespace Silly_Things.Codes.CameraItem
             };
 
             renderer.material = mat;
-        }
-
-        [ClientRpc]
-        private void SyncVariantClientRpc()
-        {
-            ApplyFrameVariant();
         }
 
         // _____________PIN_____________ \\
@@ -282,7 +277,7 @@ namespace Silly_Things.Codes.CameraItem
             if (monsterValue == null)
             {
                 monsterValue = Plugin.SillyThingsConfig.defaultMonsterValue.Value;
-                Plugin.Logger.LogError("UNKNOWN MONSTER! Add " + monsterName + "to the config files to add a specific value! The default value is currently applied");
+                //Plugin.Logger.LogError("UNKNOWN MONSTER! Add " + monsterName + "to the config files to add a specific value! The default value is currently applied");
             }
             Helper.LogDebugMod("You catch: " + monsterName + " with a value of  " + monsterValue, "");
 
@@ -294,7 +289,7 @@ namespace Silly_Things.Codes.CameraItem
             Helper.LogDebugMod("GetScrapFromAdditionalMonster", monsterName);
             float? value = null;
 
-            foreach (HelperCamera.MonsterNameValue m in HelperCamera.additionalMonsterValues)
+            foreach (HelperCameraEnemy.MonsterNameValue m in HelperCameraEnemy.additionalMonsterValues)
             {
                 if (monsterName == m.Name)
                 {
@@ -312,7 +307,7 @@ namespace Silly_Things.Codes.CameraItem
                 return;
 
             string saveName = GameNetworkManager.Instance.currentSaveFileName;
-            string folder = Path.Combine(Paths.GameRootPath, "TempPhotos", saveName);
+            string folder = Path.Combine(Paths.GameRootPath, "TempSillyThings", saveName);
 
             string filePath = Path.Combine(folder, uniqueId + ".jpg");
 
@@ -330,7 +325,7 @@ namespace Silly_Things.Codes.CameraItem
             if (File.Exists(metaPath))
             {
                 string json = File.ReadAllText(metaPath);
-                PhotoMeta meta = JsonConvert.DeserializeObject<PhotoMeta>(json);
+                PhotoMeta? meta = JsonConvert.DeserializeObject<PhotoMeta>(json);
 
                 if (meta != null)
                 {

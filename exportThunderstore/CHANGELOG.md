@@ -6,8 +6,14 @@
     -   Loading of pictures for other when joining the game
     -   New config to remove customs icons
     -   New frames variants !
+    -   New config for the detection distance in the camera
+
+    -   **Change**
+    -   I changed the logo :3
 
 -   **Fix**
+    -   A Bug making the camera having collider
+    -   A Bug making the value of mobs in the camera per player
     -   A Bug making the screen always showing
     -   A Bug making the camera change color on reload of save
     -   A Bug making the pictures far from wall on pin

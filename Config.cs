@@ -31,6 +31,7 @@ namespace Silly_Things
         public ConfigEntry<int> cameraCost;
         public ConfigEntry<bool> cameraHasBattery;
         public ConfigEntry<int> cameraBatteryNumberOfPickBeforeZero;
+        public ConfigEntry<int> enemyDetectionDistance;
 
         // _____________CAMERA MOB_____________ \\
         public ConfigEntry<string> monsterValues;
@@ -85,6 +86,7 @@ namespace Silly_Things
                 "Rarity of the Snake Card Box Item (higher = more common)."
             );
 
+            // _____________BOUNTY_____________ \\
             BountyContract = configFile.Bind(
                 "Bounty Contract",
                 "BountyContractItemRarity",
@@ -135,6 +137,13 @@ namespace Silly_Things
                 "Change default value for monster not listed above (MonsterValues)"
             );
 
+            enemyDetectionDistance = configFile.Bind(
+                "Camera",
+                "CameraDetectDist",
+                30,
+                "The depth where the camera detect an enemy or player"
+            );
+
             monsterValueMultiplier = configFile.Bind(
                 "Camera",
                 "Monster value multiplier",
@@ -152,7 +161,7 @@ namespace Silly_Things
             cameraLootRarity = configFile.Bind(
                 "Camera",
                 "CameraLootRarity",
-                20,
+                200,
                 "Chance of looting a camera (1 very rare, 100 very common)"
             );
 

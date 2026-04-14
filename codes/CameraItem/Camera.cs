@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Silly_Things.codes.BountyContract;
 using Silly_Things.codes.CameraItem;
 using Silly_Things.codes.Helper;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -18,12 +19,14 @@ namespace Silly_Things.Codes.CameraItem
     {
         private float lastPhotoTime = -999f;
         private const int MAX_CHUNK_SIZE = 900;
-        private List<EnemyAI> photographedEnemies = new List<EnemyAI>();
+        private HashSet<ulong> photographedEnemies = new HashSet<ulong>();
         public NetworkVariable<int> UniqueIdNet = new NetworkVariable<int>();
         private Dictionary<ulong, List<byte>> photoChunks = new Dictionary<ulong, List<byte>>();
+        public static List<CameraItem> Instances { get; set; } = new List<CameraItem>();
+        public NetworkVariable<int> VariantNet = new NetworkVariable<int>(0,NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-        // _____________OBJECT_____________ \\
-        private static RenderTexture? photoRenderTexture;
+    // _____________OBJECT_____________ \\
+    private static RenderTexture? photoRenderTexture;
         private static Camera? photoCamera;
         private Light? flashLight;
         private ParticleSystem? clickParticles;
@@ -52,19 +55,15 @@ namespace Silly_Things.Codes.CameraItem
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            Instances.Add(this);
 
             photographedEnemies.Clear();
-            SyncScrapValueServerRpc(0);
 
             UniqueIdNet.OnValueChanged += OnUniqueIdChanged;
 
             if (IsServer && UniqueIdNet.Value == 0)
             {
-                UniqueIdNet.Value = Random.Range(1, 4);
-            }
-            else
-            {
-                UniqueIdNet.Value = UniqueIdNet.Value;
+                UniqueIdNet.Value = UnityEngine.Random.Range(0, 4);
             }
 
             flashLight = GetComponentInChildren<Light>(true);
@@ -75,9 +74,31 @@ namespace Silly_Things.Codes.CameraItem
             screenRenderer = transform.Find("Quad")?.GetComponent<Renderer>();
             cubeSuccessRenderer = transform.Find("CubeSucess")?.GetComponent<Renderer>();
 
+            VariantNet.OnValueChanged += (oldVal, newVal) =>
+            {
+                ApplyVariant(newVal);
+            };
+
+            if (IsClient)
+            {
+                ApplyVariant(VariantNet.Value);
+            }
+
             if (IsServer)
             {
-                SyncVariantClientRpc();
+                var data = LoadAll();
+                var existing = data.cameras.Find(c => c.id == NetworkObjectId);
+
+                if (existing != null)
+                {
+                    VariantNet.Value = existing.colorVariant;
+                }
+                else
+                {
+                    int randomVariant = UnityEngine.Random.Range(0, 4);
+                    VariantNet.Value = randomVariant;
+                    SaveVariant(NetworkObjectId, randomVariant);
+                }
             }
 
             if (Plugin.SillyThingsConfig.cameraCanUpdateScreen.Value && itemCamera != null && screenRenderer != null)
@@ -181,7 +202,12 @@ namespace Silly_Things.Codes.CameraItem
         {
             base.ItemActivate(used, buttonDown);
 
-            if (!IsOwner || !UseBatteryAndHasBattery())
+            if (!IsOwner)
+                return;
+
+            Plugin.Logger.LogError(IsOwner);
+
+            if (!UseBatteryAndHasBattery())
                 return;
 
             if (Time.time - lastPhotoTime < Plugin.SillyThingsConfig.cameraUseCooldown.Value)
@@ -195,30 +221,58 @@ namespace Silly_Things.Codes.CameraItem
             PlayFxServerRpc(0);
             List<PlayerControllerB> players = new List<PlayerControllerB>();
             List<EnemyAI> monsters = new List<EnemyAI>();
-            (monsters, _) = HelperCamera.GetVisibleEntities(playerHeldBy, monsters, players, itemCamera);
-            int value = (int)HelperCamera.GetMonstersScore(monsters, photographedEnemies);
+            (monsters, players) = HelperCameraEnemy.GetVisibleEntities(playerHeldBy, monsters, players, itemCamera);
+            ulong[] ids = monsters.Select(e => e.NetworkObjectId).ToArray();
 
-            if (value > 0)
-            {
-                foreach (EnemyAI enemy in monsters)
-                {
-                    Plugin.Logger.LogError("enemy photographed : " + enemy.enemyType.enemyName.ToString());
-                    Plugin.Logger.LogError("enemy photographed : " + enemy.enemyType.enemyName.ToString());
-                    Plugin.Logger.LogError("enemy photographed : " + enemy.enemyType.enemyName.ToString());
-                    if (!photographedEnemies.Contains(enemy))
-                        photographedEnemies.Add(enemy);
-                }
+            TryRegisterEnemiesServerRpc(ids);
 
-                PlayFxServerRpc(2);
-                StartCoroutine(Success(1f, value));
-            }
-
-            StartCoroutine(TakePhotoWithFlash());
+            StartCoroutine(TakePhotoWithFlash(monsters, players));
             if (insertedBattery != null)
             {
                 insertedBattery.charge = Mathf.Clamp01(insertedBattery.charge - batteryUsagePerShot);
             }
             UpdateUI();
+        }
+
+        [ServerRpc]
+        private void TryRegisterEnemiesServerRpc(ulong[] enemyIds)
+        {
+            int value = 0;
+
+            foreach (ulong id in enemyIds)
+            {
+                if (!photographedEnemies.Contains(id))
+                {
+                    photographedEnemies.Add(id);
+
+                    EnemyAI enemy = FindEnemyById(id);
+                    if (enemy != null)
+                    {
+                        value += (int)PhotoItem.GetMonsterScore(enemy.enemyType.enemyName);
+                    }
+                }
+            }
+
+            if (value > 0)
+            {
+                AddValueClientRpc(value);
+            }
+        }
+
+        [ClientRpc]
+        private void AddValueClientRpc(int value)
+        {
+            StartCoroutine(Success(1f, value));
+        }
+
+        private EnemyAI FindEnemyById(ulong id)
+        {
+            foreach (var enemy in FindObjectsOfType<EnemyAI>())
+            {
+                if (enemy.NetworkObjectId == id)
+                    return enemy;
+            }
+            return null;
         }
 
         public override void EquipItem()
@@ -273,6 +327,7 @@ namespace Silly_Things.Codes.CameraItem
         public override void OnDestroy()
         {
             base.OnDestroy();
+            Instances.Remove(this);
             screenTexture?.Release();
         }
 
@@ -330,28 +385,23 @@ namespace Silly_Things.Codes.CameraItem
             flashLight.enabled = false;
         }
 
-        private IEnumerator TakePhotoWithFlash()
+        private IEnumerator TakePhotoWithFlash(List<EnemyAI> monsters, List<PlayerControllerB> players)
         {
             if (itemCamera == null || flashLight == null)
                 yield break;
 
             itemCamera.cullingMask = playerHeldBy.gameplayCamera.cullingMask;
-            flashLight.color = Color.white;
-            flashLight.intensity = 250f;
-            flashLight.range = 80f;
-            flashLight.spotAngle = 125f;
-            flashLight.enabled = true;
+            //flashLight.color = Color.white;
+            //flashLight.intensity = 200f;
+            //flashLight.range = 80f;
+            //flashLight.spotAngle = 125f;
+            //flashLight.enabled = true;
 
             yield return new WaitForSeconds(0.02f);
 
-            List<PlayerControllerB> players = new List<PlayerControllerB>();
-            List<EnemyAI> monsters = new List<EnemyAI>();
+            string entitiesStr = HelperCameraEnemy.GetEntitiesNames(monsters, players);
 
-            var result = HelperCamera.GetVisibleEntities(playerHeldBy, monsters, players, itemCamera);
-
-            string entitiesStr = HelperCamera.GetEntitiesNames(result.Item1, result.Item2);
-
-            int uniqueId = Random.Range(1, int.MaxValue);
+            int uniqueId = UnityEngine.Random.Range(1, int.MaxValue);
             SpawnPhotoServerRpc(entitiesStr, itemCamera.transform.position, itemCamera.transform.rotation, currentFov, uniqueId);
 
             PlayFxServerRpc(3);
@@ -379,6 +429,7 @@ namespace Silly_Things.Codes.CameraItem
             Color original = cubeSuccessRenderer.material.color;
             cubeSuccessRenderer.material.color = Color.green;
 
+            PlayFxServerRpc(2);
             UpdateUI(" + " + valueToAdd);
 
             yield return new WaitForSeconds(duration);
@@ -418,12 +469,6 @@ namespace Silly_Things.Codes.CameraItem
             }
         }
 
-        [ClientRpc]
-        private void SyncVariantClientRpc()
-        {
-            ApplyVariant();
-        }
-
         [ServerRpc]
         private void SyncScrapValueServerRpc(int valueToAdd)
         {
@@ -438,7 +483,6 @@ namespace Silly_Things.Codes.CameraItem
             UpdateUI();
         }
 
-        // _____________COLORS_____________ \\
         public bool UseBatteryAndHasBattery()
         {
             if (Plugin.SillyThingsConfig.cameraHasBattery.Value)
@@ -452,50 +496,38 @@ namespace Silly_Things.Codes.CameraItem
                 return true;
         }
 
-        private void ApplyVariant()
+        // _____________COLORS_____________ \\
+        private void ApplyVariant(int index)
         {
-            int index = UniqueIdNet.Value;
             Transform gold = transform.Find("CameraGOLD");
             Transform blue = transform.Find("CameraBlue");
             Transform black = transform.Find("CameraBlack");
             Transform pink = transform.Find("CameraPink");
 
-            List<Transform> models = new List<Transform>();
+            var variants = new List<(Transform model, Shader shader)>();
 
-            if (gold != null)
-                models.Add(gold);
-            if (blue != null)
-                models.Add(blue);
-            if (black != null)
-                models.Add(black);
-            if (pink != null)
-                models.Add(pink);
+            if (gold != null && Plugin.Instance.photoShaderGold != null)
+                variants.Add((gold, Plugin.Instance.photoShaderGold));
+            if (blue != null && Plugin.Instance.photoShaderBlue != null)
+                variants.Add((blue, Plugin.Instance.photoShaderBlue));
+            if (black != null && Plugin.Instance.photoShaderBlack != null)
+                variants.Add((black, Plugin.Instance.photoShaderBlack));
+            if (pink != null && Plugin.Instance.photoShader != null)
+                variants.Add((pink, Plugin.Instance.photoShader));
 
-            if (models.Count == 0)
+            if (variants.Count == 0)
                 return;
 
-            index = Mathf.Clamp(index, 0, models.Count - 1);
+            for (int i = 0; i < variants.Count; i++)
+                variants[i].model.gameObject.SetActive(i == index);
 
-            for (int i = 0; i < models.Count; i++)
-                models[i].gameObject.SetActive(i == index);
-
-            if (Plugin.Instance.photoShaderBlack != null && Plugin.Instance.photoShaderBlue != null && Plugin.Instance.photoShaderGold != null && Plugin.Instance.photoShader != null)
+            if (variants[index].shader != null)
             {
-                Shader[] shaders =
-                {
-                    Plugin.Instance.photoShaderGold,
-                    Plugin.Instance.photoShaderBlue,
-                    Plugin.Instance.photoShaderBlack,
-                    Plugin.Instance.photoShader
-                };
-
                 if (photoMat != null)
                     Destroy(photoMat);
 
-                photoMat = new Material(shaders[index]);
+                photoMat = new Material(variants[index].shader);
             }
-
-            Plugin.Logger.LogInfo($"Camera variant synced: {models[index].name}");
         }
 
         // _____________PHOTO_____________ \\
@@ -506,7 +538,7 @@ namespace Silly_Things.Codes.CameraItem
 
             GameObject camObj = new GameObject("SillyThingsPhotoCamera");
 
-            Object.DontDestroyOnLoad(camObj);
+            UnityEngine.Object.DontDestroyOnLoad(camObj);
 
             photoCamera = camObj.AddComponent<Camera>();
             photoCamera.enabled = false;
@@ -560,10 +592,10 @@ namespace Silly_Things.Codes.CameraItem
                         StartCoroutine(SendChunksCoroutine(photoNetId, uniqueId, jpg, entitiesStr));
                     }
 
-                    Object.Destroy(networkTex);
+                    UnityEngine.Object.Destroy(networkTex);
                 }
 
-                Object.Destroy(fullTex);
+                UnityEngine.Object.Destroy(fullTex);
             }
         }
 
@@ -574,7 +606,11 @@ namespace Silly_Things.Codes.CameraItem
 
             NetworkObject netObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[photoNetId];
             PhotoItem photo = netObj.GetComponent<PhotoItem>();
-            photo.UniqueIdNet.Value = uniqueId;
+
+            if (IsServer)
+            {
+                photo.UniqueIdNet.Value = uniqueId;
+            }
 
             if (photo == null)
                 return;
@@ -591,7 +627,7 @@ namespace Silly_Things.Codes.CameraItem
             if (IsHost)
             {
                 string saveName = GameNetworkManager.Instance.currentSaveFileName;
-                string folder = Path.Combine(Paths.GameRootPath, "TempPhotos", saveName);
+                string folder = Path.Combine(Paths.GameRootPath, "TempSillyThings", saveName);
 
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
@@ -700,6 +736,60 @@ namespace Silly_Things.Codes.CameraItem
 
                 ApplyPhoto(photoNetId, uniqueId, fullData, entitiesStr);
             }
+        }
+
+        public static CameraMetaList LoadAll()
+        {
+            string saveName = GameNetworkManager.Instance.currentSaveFileName;
+            string folder = Path.Combine(Paths.GameRootPath, "TempSillyThings", saveName);
+            string path = Path.Combine(folder, "CameraTemp.json");
+
+            if (!File.Exists(path))
+                return new CameraMetaList();
+
+            string json = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<CameraMetaList>(json) ?? new CameraMetaList();
+        }
+
+        public static void SaveVariant(ulong id, int variant)
+        {
+            string saveName = GameNetworkManager.Instance.currentSaveFileName;
+            string folder = Path.Combine(Paths.GameRootPath, "TempSillyThings", saveName);
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            string path = Path.Combine(folder, "CameraTemp.json");
+
+            CameraMetaList list;
+
+            if (File.Exists(path))
+            {
+                string json = File.ReadAllText(path);
+                list = JsonConvert.DeserializeObject<CameraMetaList>(json) ?? new CameraMetaList();
+            }
+            else
+            {
+                list = new CameraMetaList();
+            }
+
+            var existing = list.cameras.Find(c => c.id == id);
+
+            if (existing != null)
+            {
+                existing.colorVariant = variant;
+            }
+            else
+            {
+                list.cameras.Add(new CameraMeta
+                {
+                    id = id,
+                    colorVariant = variant
+                });
+            }
+
+            string newJson = JsonConvert.SerializeObject(list, Formatting.Indented);
+            File.WriteAllText(path, newJson);
         }
     }
 }

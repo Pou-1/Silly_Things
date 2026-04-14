@@ -185,14 +185,14 @@ namespace Silly_Things
             CameraVariantGold = bundle.LoadAsset<GameObject>("Assets/LethalModding/Camera/CameraVariantGold/CameraItemGold.prefab");
             CameraVariantBlue = bundle.LoadAsset<GameObject>("Assets/LethalModding/Camera/CameraVariantBlue/CameraItemBlue.prefab");
             CameraVariantBlack = bundle.LoadAsset<GameObject>("Assets/LethalModding/Camera/CameraVariantBlack/CameraItemBlack.prefab");
-
+           
             string displayText = "Take picture of monsters.\n" + "Sell them to the Company.\n" + "Live for another day of work\n\n" + "Each monster give different value to the pictures (based on their dangerosity)\n" + "Friend in the picture with monsters bring more value to it\n";
 
             LoadItemTemplate<CameraItem>(bundle, "Assets/LethalModding/Camera/CameraItem.asset", "Camera", SillyThingsConfig.cameraLootRarity.Value, addtoShop: SillyThingsConfig.cameraCanBeBuy.Value, cost: SillyThingsConfig.cameraCost.Value, displayText: displayText);
 
             PhotoItemPrefab = LoadItemTemplate<PhotoItem>(bundle, "Assets/LethalModding/Camera/PhotoItem/PhotoItem.asset", "Picture", 0).gameObject;
 
-            HelperCamera.LoadMonstersValues();
+            HelperCameraEnemy.LoadMonstersValues();
 
             photoShader = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/ShaderCamera.shader");
             photoShaderBlack = bundle.LoadAsset<Shader>("Assets/LethalModding/Camera/CameraVariantBlack/ShaderCameraBlack.shader");
