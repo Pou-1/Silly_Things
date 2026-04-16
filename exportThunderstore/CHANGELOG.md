@@ -1,3 +1,7 @@
+# 2.0.1
+   **Fix**
+    -   A Bug making the picture costing 5$
+
 # 2.0.0
 
 -   **Added**

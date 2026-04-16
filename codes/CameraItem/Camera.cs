@@ -556,7 +556,7 @@ namespace Silly_Things.Codes.CameraItem
                 return;
 
             Item pictureItem = Plugin.Instance.PhotoItemPrefab.GetComponent<GrabbableObject>().itemProperties;
-            NetworkReference netRef = Helper.SpawnScrap(pictureItem, player.transform.position + player.transform.forward * 0.5f, 5);
+            NetworkReference netRef = Helper.SpawnScrap(pictureItem, player.transform.position + player.transform.forward * 0.5f, 0);
 
             if (netRef.netObjectRef.TryGet(out NetworkObject netObj))
             {

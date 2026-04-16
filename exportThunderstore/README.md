@@ -3,7 +3,7 @@
 This mod add a camera and a shapeshift (like among us) to the game !
 Compatible v80 ofc
 
-<h2 align="center">
+<h2 align="center" style="margin-top:50px;">
  The Camera
 </h2>
 
@@ -11,7 +11,7 @@ WARNING : The camera take pictures are stored in the computer in the lethal fold
 
 WARNING : The host store pictures of the game in jpg in the lethal folder (Lethal Company/TempSillyThings) don't forget to remove them when u it take too many space (i will make a maj so it is remove on save end or remove but idk how for the moment)
 
-<p align="center" style="margin-top:500px;">
+<p align="center">
   <img width="90%" alt="2026-04-15_02-10-07_pouy" src="https://github.com/user-attachments/assets/e7fdb500-c3f5-44a7-b3eb-3574042a6013" />
 </p>
 
@@ -28,7 +28,7 @@ Allow you to capture the best moments of your game !
   <img width="45%" style="margin-left:10px;" alt="2026-04-15_02-10-41_pouy" src="https://github.com/user-attachments/assets/938e92bc-c18e-4dd0-ad8d-e2a10c3e66bd" />
 </p>
 
-Take a picture of a mob to get more value.
+Take a picture of a mob to get more value. (value of the camera go up hen taking a picture of a mob)
 
 <ins>**Put the pictures in the ship :**<ins/>
 
@@ -36,7 +36,7 @@ Take a picture of a mob to get more value.
   <img width="90%" alt="2026-04-15_02-10-07_pouy" src="https://github.com/user-attachments/assets/8f1dbc56-d2fd-4722-ad0f-9eb9cfaa0e2a" />
 </p>
 
-<h2 align="center">
+<h2 align="center" style="margin-top:50px;">
  The shapeshift Case
 </h2>
 
@@ -50,13 +50,13 @@ Take a picture of a mob to get more value.
 
 Allow the player holding it to disguise as another player while holding it !
 
-<h2 align="center">
+<h2 align="center" style="margin-top:50px;">
  The Bounty Contract (NOT AVAILABLE, some bugs so i will fix it)
 </h2>
 
 Allow the player holding it to have a bounty, a path to the bounty will be seenby this player, when the bounty is killed (whatever the reason) it dropped the bounty !
 
-<h2 align="center">
+<h2 align="center" style="margin-top:50px;">
  The Cardboard of Metal Gear (NOT AVAILABLE, some bugs so i will fix it)
 </h2>
 
