@@ -1,6 +1,6 @@
 {
 	"name": "SillyThings",
-	"version_number": "2.0.1",
+	"version_number": "2.0.2",
 	"website_url": "https://github.com/Pou-1/Silly_Things",
 	"description": "Add a camera and a shapeshift (like among us) to the game !",
 	"dependencies": [

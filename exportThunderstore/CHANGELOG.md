@@ -1,3 +1,7 @@
+# 2.0.2
+   **Fix**
+    -   I didn't updated the dependencies and readme version
+
 # 2.0.1
    **Fix**
     -   A Bug making the picture costing 5$
