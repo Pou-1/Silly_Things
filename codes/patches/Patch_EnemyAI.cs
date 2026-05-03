@@ -1,12 +1,10 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using UnityEngine;
 using System.Linq;
-using Silly_Things.codes.BountyContract;
 
 namespace Silly_Things.codes.patches
 {
-    /*[HarmonyPatch(typeof(EnemyAI))]
+   /* [HarmonyPatch(typeof(EnemyAI))]
     internal class Patch_EnemyAI_PlayerIsTargetable
     {
         [HarmonyPostfix]

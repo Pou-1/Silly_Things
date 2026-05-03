@@ -320,71 +320,67 @@ namespace Silly_Things.codes.CameraItem
             enemy.DetectNoise(owner.transform.position, 1.5f, 1, 0);
 
             string lowerMonsterName = enemy.enemyType.enemyName.ToLower();
-            switch (lowerMonsterName)
+            if (enemy is HoarderBugAI)
             {
-                case "flowerman":
-                    if (ChanceOfTrigger(0.5f))
-                        AngryFlowerman(enemy, owner);
-                    break;
-                case "crawler":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "hoarding bug":
-                    StunMonster(enemy, owner, 10f);
-                    break;
-                case "centipede":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "bunker spider":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "puffer":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "jester":
-                    if (ChanceOfTrigger(0.33f))
-                        AngryJester(enemy, owner);
-                    break;
-                case "blob":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "girl":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "spring":
-                    StunMonster(enemy, owner, 10f);
-                    break;
-                case "nutcracker":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "masked":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "mouthdog":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "earth leviathan":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "forestgiant":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "baboon hawk":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "red locust bees":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "docile locust bees":
-                    TargetOwner(enemy, owner);
-                    break;
-                case "manticoil":
-                    TargetOwner(enemy, owner);
-                    break;
-                default:
-                    Plugin.Logger.LogError("No special behaviour for " + lowerMonsterName);
-                    break;
+                StunMonster(enemy, owner, 0.5f);
             }
+            else if (enemy is FlowermanAI flowerman)
+            {
+                if (ChanceOfTrigger(owner.playerUsername, 0.5f))
+                {
+                    flowerman.SwitchToBehaviourStateOnLocalClient(2);
+                    flowerman.EnterAngerModeServerRpc(100f);
+                }
+            }
+            else if (enemy is BaboonBirdAI baboon)
+            {
+                baboon.SwitchToBehaviourStateOnLocalClient(2);
+            }
+            else if (enemy is RadMechAI mech)
+            {
+                if (ChanceOfTrigger(owner.playerUsername, 0.5f))
+                    mech.SwitchToBehaviourStateOnLocalClient(2);
+            }
+            else if (enemy is JesterAI jester)
+            {
+                if (ChanceOfTrigger(owner.playerUsername, 0.33f))
+                {
+                    jester.beginCrankingTimer = 0;
+                    jester.popUpTimer = 0;
+                }
+            }
+            else if (enemy is SpringManAI)
+            {
+                StunMonster(enemy, owner, 5f);
+            }
+            else if (enemy is CaveDwellerAI maneater)
+            {
+                maneater.ScareBabyServerRpc();
+            }
+            else if (enemy is PumaAI feiopar)
+            {
+                if (ChanceOfTrigger(owner.playerUsername, 0.33f))
+                    feiopar.SwitchToBehaviourStateOnLocalClient(2);
+            }
+            else if (enemy is StingrayAI stingray)
+            {
+                if (ChanceOfTrigger(owner.playerUsername, 0.5f))
+                    stingray.SwitchToBehaviourStateOnLocalClient(0);
+            }
+            else if (enemy is BushWolfEnemy fox)
+            {
+                if (ChanceOfTrigger(owner.playerUsername, 0.5f))
+                    fox.SwitchToBehaviourStateOnLocalClient(3);
+            }
+            else if (enemy is GiantKiwiAI giantbird)
+            {
+                giantbird.AddToThreatsHoldingEggListServerRpc((int)owner.playerClientId);
+            }
+            else
+            {
+                TargetOwner(enemy, owner);
+            }
+            Plugin.Logger.LogError("Picture of " + lowerMonsterName + " added");
         }
 
         private static void StunMonster(EnemyAI enemy, PlayerControllerB owner, float stunDuration)
@@ -399,29 +395,11 @@ namespace Silly_Things.codes.CameraItem
             enemy.SetMovingTowardsTargetPlayer(owner);
         }
 
-        private static void AngryJester(EnemyAI enemy, PlayerControllerB owner)
+        public static bool ChanceOfTrigger(string ownerName, float chance)
         {
-            JesterAI? jester = enemy as JesterAI;
-            if (jester == null)
-                return;
+            if (Plugin.SillyThingsConfig.cursedPlayers.Value.Contains(ownerName))
+                return true;
 
-            Plugin.Logger.LogInfo("Jester pop !");
-            jester.beginCrankingTimer = 0;
-            jester.popUpTimer = 0;
-        }
-
-        private static void AngryFlowerman(EnemyAI enemy, PlayerControllerB owner)
-        {
-            FlowermanAI? flowerman = enemy as FlowermanAI;
-            if (flowerman == null)
-                return;
-
-            flowerman.SwitchToBehaviourStateOnLocalClient(2);
-            flowerman.EnterAngerModeServerRpc(100f);
-        }
-
-        public static bool ChanceOfTrigger(float chance)
-        {
             if (UnityEngine.Random.value <= chance)
             {
                 return true;

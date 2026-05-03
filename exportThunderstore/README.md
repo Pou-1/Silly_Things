@@ -84,3 +84,20 @@ You can post some suggestions or issues in the mod release page in the as a [git
 -   Thanks **Zigzag** for help on the UI and the network !
 -   Thanks **Lethal Snap** with the code, that helped me with some issues on the camera
 -   Thanks to AlemanGame for the item model : https://sketchfab.com/3d-models/suitcase-8686e3b8564349fdbbdf166042655036
+
+<h2>
+ List of Reactions of mobs when shot in pictures
+</h2>
+
+- spring : get stun for some secs
+- flowerman : 50% chances to be angry and attack you
+- stingray : 50% chances to be angry and attack you
+- kidnapper fox : 50% chances to be angry and attack you
+- jester : 33% chances to open instantly
+- feiopar : 33% chances to be angry and attack you
+- maneater (baby) : get scared
+- giant kiwi : will add you to the list of person to attack
+- baboon : scared
+- mech : make them fly
+- hoarding bug : get into attack phase
+- others : chase you

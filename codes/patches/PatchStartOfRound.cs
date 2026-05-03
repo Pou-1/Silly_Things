@@ -10,20 +10,6 @@ namespace Silly_Things.codes.patches
     internal class PatchStartOfRound
     {
         /*[HarmonyPrefix]
-        [HarmonyPatch("Crouch")]
-        public static bool BlockUncrouchWhileUsingBox(PlayerControllerB __instance, bool crouch)
-        {
-            if (__instance.currentlyHeldObjectServer is SnakeCardboardBox.SnakeCardboardBox box)
-            {
-                if (box.PlayerHiddenByBox)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }*/
-
-        /*[HarmonyPrefix]
         [HarmonyPatch("ShipLeave")]
         public static void StopSearchBounty()
         {

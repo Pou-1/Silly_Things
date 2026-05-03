@@ -38,6 +38,7 @@ namespace Silly_Things
         public ConfigEntry<int> defaultMonsterValue;
         public ConfigEntry<int> monsterValueMultiplier;
         public ConfigEntry<bool> monsterReactToFlash;
+        public ConfigEntry<string> cursedPlayers;
 
         // _____________FLASH_____________ \\
         public ConfigEntry<float> flashAngle;
@@ -156,6 +157,13 @@ namespace Silly_Things
                 "Monster React to flash",
                 true,
                 "Does monster have special reaction when taken in picture"
+            );
+
+            cursedPlayers = configFile.Bind(
+             "Camera",
+             "Player Cursed",
+             "zeldahu, mr. Z",
+             "Player with 100% chance to have monsters react when tooking a pic of a monster"
             );
 
             cameraLootRarity = configFile.Bind(
