@@ -33,7 +33,8 @@ Take a picture of a mob to get more value. (value of the camera go up hen taking
  Put the pictures in the ship :
 </h3>
 
-<img width="90%" alt="2026-04-15_02-10-07_pouy" src="https://github.com/user-attachments/assets/8f1dbc56-d2fd-4722-ad0f-9eb9cfaa0e2a" />
+<img width="90%" alt="1966720_163" src="https://github.com/user-attachments/assets/fc611725-12ce-4d8d-9f40-9db76b3df409" />
+<img width="90%" alt="1966720_164" src="https://github.com/user-attachments/assets/8c89c26e-a7b1-482c-a9b8-c43ae80aec14" />
 
 <h2>
  The shapeshift Case
